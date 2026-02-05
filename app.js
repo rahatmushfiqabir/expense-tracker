@@ -91,7 +91,7 @@ async function handleLogin(e) {
         await signInWithEmailAndPassword(window.firebaseAuth, email, password);
         // Auth state listener will automatically show app section
     } catch (error) {
-        loginError.textContent = 'Login failed! ' + getErrorMessage(error.code);
+        loginError.textContent = 'লগইন ব্যর্থ হয়েছে! ' + getErrorMessage(error.code);
         loginError.classList.add('show');
         setTimeout(() => loginError.classList.remove('show'), 5000);
     }
@@ -110,7 +110,7 @@ async function handleRegister(e) {
 
     // Password match check
     if (password !== confirmPassword) {
-        registerError.textContent = 'Passwords do not match!';
+        registerError.textContent = 'পাসওয়ার্ড মিলছে না!';
         registerError.classList.add('show');
         setTimeout(() => registerError.classList.remove('show'), 5000);
         return;
@@ -128,7 +128,7 @@ async function handleRegister(e) {
             createdAt: new Date().toISOString()
         });
 
-        registerSuccess.textContent = 'Registration successful! Logging in...';
+        registerSuccess.textContent = 'রেজিস্ট্রেশন সফল! লগইন হচ্ছে...';
         registerSuccess.classList.add('show');
 
         // Reset form
@@ -136,7 +136,7 @@ async function handleRegister(e) {
 
         setTimeout(() => registerSuccess.classList.remove('show'), 3000);
     } catch (error) {
-        registerError.textContent = 'Registration failed! ' + getErrorMessage(error.code);
+        registerError.textContent = 'রেজিস্ট্রেশন ব্যর্থ হয়েছে! ' + getErrorMessage(error.code);
         registerError.classList.add('show');
         setTimeout(() => registerError.classList.remove('show'), 5000);
     }
@@ -161,7 +161,7 @@ document.getElementById('logoutBtn').addEventListener('click', async () => {
         await signOut(window.firebaseAuth);
         // Auth state listener will automatically show auth section
     } catch (error) {
-        alert('Logout failed! ' + error.message);
+        alert('লগআউট ব্যর্থ হয়েছে! ' + error.message);
     }
 });
 
@@ -534,7 +534,8 @@ document.getElementById('exportCSV').addEventListener('click', () => {
         return;
     }
 
-    let csvContent = 'Date,Category,Description,Amount (TK)\n';
+    // Add UTF-8 BOM for proper Excel rendering of Bengali text
+    let csvContent = '\uFEFFDate,Category,Description,Amount (TK)\n';
 
     expenses.forEach(expense => {
         const row = `${expense.date},${expense.category},"${expense.description}",${expense.amount}`;
