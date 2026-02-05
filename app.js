@@ -1,16 +1,16 @@
 // ===================================
-// খরচ ট্র্যাকার - Firebase Authentication + Firestore
-// এখন সব ইউজারের আলাদা ডেটা থাকবে
+// Expense Tracker - Firebase Authentication + Firestore
+// Each user has their own data
 // ===================================
 
-// গ্লোবাল ভেরিয়েবল
+// Global variables
 let currentUser = null;
 let expenses = [];
 let budgets = {};
 let categoryChart = null;
 let dailyChart = null;
 
-// Firebase functions এবং DB রেডি করা
+// Wait for Firebase to be ready
 const waitForFirebase = () => {
     return new Promise((resolve) => {
         if (window.firebaseFunctions && window.firebaseDB && window.firebaseAuth) {
@@ -22,10 +22,10 @@ const waitForFirebase = () => {
 };
 
 // ===================================
-// AUTHENTICATION সিস্টেম
+// AUTHENTICATION SYSTEM
 // ===================================
 
-// পেজ লোড হলে Authentication চেক করা
+// Check authentication state when page loads
 document.addEventListener('DOMContentLoaded', async () => {
     await waitForFirebase();
 
@@ -34,36 +34,36 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Auth state change listener
     onAuthStateChanged(window.firebaseAuth, (user) => {
         if (user) {
-            // ইউজার লগইন আছে
+            // User is logged in
             currentUser = user;
             showAppSection();
             loadUserData();
         } else {
-            // ইউজার লগইন নেই
+            // User is not logged in
             currentUser = null;
             showAuthSection();
         }
     });
 
-    // Auth tabs setup
+    // Setup auth tabs
     setupAuthTabs();
 });
 
-// Auth tabs সেটআপ
+// Setup authentication tabs
 function setupAuthTabs() {
     const authTabs = document.querySelectorAll('.auth-tab-btn');
     const authForms = document.querySelectorAll('.auth-form');
 
     authTabs.forEach(tab => {
         tab.addEventListener('click', () => {
-            // সব ট্যাব থেকে active ক্লাস সরাও
+            // Remove active class from all tabs
             authTabs.forEach(t => t.classList.remove('active'));
             authForms.forEach(f => f.classList.remove('active'));
 
-            // ক্লিক করা ট্যাবে active ক্লাস যোগ করো
+            // Add active class to clicked tab
             tab.classList.add('active');
 
-            // সংশ্লিষ্ট ফর্ম দেখাও
+            // Show related form
             const authType = tab.getAttribute('data-auth');
             document.getElementById(`${authType}Form`).classList.add('active');
         });
@@ -78,7 +78,7 @@ function setupAuthTabs() {
     registerForm.addEventListener('submit', handleRegister);
 }
 
-// লগইন হ্যান্ডলার
+// Login handler
 async function handleLogin(e) {
     e.preventDefault();
 
@@ -89,15 +89,15 @@ async function handleLogin(e) {
     try {
         const { signInWithEmailAndPassword } = window.firebaseFunctions;
         await signInWithEmailAndPassword(window.firebaseAuth, email, password);
-        // Auth state listener স্বয়ংক্রিয়ভাবে অ্যাপ সেকশন দেখাবে
+        // Auth state listener will automatically show app section
     } catch (error) {
-        loginError.textContent = '❌ লগইন ব্যর্থ হয়েছে! ' + getErrorMessage(error.code);
+        loginError.textContent = 'Login failed! ' + getErrorMessage(error.code);
         loginError.classList.add('show');
         setTimeout(() => loginError.classList.remove('show'), 5000);
     }
 }
 
-// রেজিস্ট্রেশন হ্যান্ডলার
+// Registration handler
 async function handleRegister(e) {
     e.preventDefault();
 
@@ -108,9 +108,9 @@ async function handleRegister(e) {
     const registerError = document.getElementById('registerError');
     const registerSuccess = document.getElementById('registerSuccess');
 
-    // পাসওয়ার্ড ম্যাচ চেক
+    // Password match check
     if (password !== confirmPassword) {
-        registerError.textContent = '❌ পাসওয়ার্ড মিলছে না!';
+        registerError.textContent = 'Passwords do not match!';
         registerError.classList.add('show');
         setTimeout(() => registerError.classList.remove('show'), 5000);
         return;
@@ -120,7 +120,7 @@ async function handleRegister(e) {
         const { createUserWithEmailAndPassword } = window.firebaseFunctions;
         const userCredential = await createUserWithEmailAndPassword(window.firebaseAuth, email, password);
 
-        // ইউজারের নাম Firestore এ সেভ করো
+        // Save user name to Firestore
         const { setDoc, doc } = window.firebaseFunctions;
         await setDoc(doc(window.firebaseDB, 'users', userCredential.user.uid), {
             name: name,
@@ -128,82 +128,82 @@ async function handleRegister(e) {
             createdAt: new Date().toISOString()
         });
 
-        registerSuccess.textContent = '✅ রেজিস্ট্রেশন সফল! লগইন হচ্ছে...';
+        registerSuccess.textContent = 'Registration successful! Logging in...';
         registerSuccess.classList.add('show');
 
-        // ফর্ম রিসেট
+        // Reset form
         document.getElementById('registerFormElement').reset();
 
         setTimeout(() => registerSuccess.classList.remove('show'), 3000);
     } catch (error) {
-        registerError.textContent = '❌ রেজিস্ট্রেশন ব্যর্থ! ' + getErrorMessage(error.code);
+        registerError.textContent = 'Registration failed! ' + getErrorMessage(error.code);
         registerError.classList.add('show');
         setTimeout(() => registerError.classList.remove('show'), 5000);
     }
 }
 
-// Auth section দেখানো
+// Show auth section
 function showAuthSection() {
     document.getElementById('authSection').style.display = 'flex';
     document.getElementById('appSection').style.display = 'none';
 }
 
-// App section দেখানো
+// Show app section
 function showAppSection() {
     document.getElementById('authSection').style.display = 'none';
     document.getElementById('appSection').style.display = 'block';
 }
 
-// লগআউট হ্যান্ডলার
+// Logout handler
 document.getElementById('logoutBtn').addEventListener('click', async () => {
     try {
         const { signOut } = window.firebaseFunctions;
         await signOut(window.firebaseAuth);
-        // Auth state listener স্বয়ংক্রিয়ভাবে auth section দেখাবে
+        // Auth state listener will automatically show auth section
     } catch (error) {
-        alert('❌ লগআউট ব্যর্থ! ' + error.message);
+        alert('Logout failed! ' + error.message);
     }
 });
 
-// Firebase error মেসেজ বাংলায় কনভার্ট
+// Firebase error message converter to Bengali
 function getErrorMessage(code) {
     const errorMessages = {
-        'auth/invalid-email': 'সঠিক ইমেইল ঠিকানা দিন',
-        'auth/user-disabled': 'এই অ্যাকাউন্টটি বন্ধ করা হয়েছে',
-        'auth/user-not-found': 'এই ইমেইলে কোনো অ্যাকাউন্ট নেই',
-        'auth/wrong-password': 'ভুল পাসওয়ার্ড',
-        'auth/email-already-in-use': 'এই ইমেইলে আগেই একটি অ্যাকাউন্ট আছে',
-        'auth/weak-password': 'পাসওয়ার্ড কমপক্ষে ৬ অক্ষর হতে হবে',
-        'auth/too-many-requests': 'অনেক চেষ্টা করেছেন। কিছুক্ষণ পর আবার চেষ্টা করুন',
-        'auth/network-request-failed': 'ইন্টারনেট সংযোগ পরীক্ষা করুন',
-        'auth/invalid-credential': 'ভুল ইমেইল বা পাসওয়ার্ড'
+        'auth/invalid-email': 'Please enter a valid email address',
+        'auth/user-disabled': 'This account has been disabled',
+        'auth/user-not-found': 'No account found with this email',
+        'auth/wrong-password': 'Wrong password',
+        'auth/email-already-in-use': 'An account already exists with this email',
+        'auth/weak-password': 'Password must be at least 6 characters',
+        'auth/too-many-requests': 'Too many attempts. Please try again later',
+        'auth/network-request-failed': 'Check your internet connection',
+        'auth/invalid-credential': 'Invalid email or password'
     };
-    return errorMessages[code] || 'কিছু ভুল হয়েছে। আবার চেষ্টা করুন।';
+    return errorMessages[code] || 'Something went wrong. Please try again.';
 }
 
 // ===================================
-// USER DATA লোড করা
+// USER DATA LOADING
 // ===================================
 
 async function loadUserData() {
     if (!currentUser) return;
 
-    // ইউজারের নাম লোড করা
+    // Load user name
     loadUserName();
 
-    // খরচের ডেটা লোড করা (real-time listener)
+    // Load expense data (real-time listener)
     setupExpensesListener();
 
-    // বাজেট লোড করা
+    // Load budgets
     setupBudgetsListener();
 
-    // অন্যান্য সেটআপ
+    // Other setup
     setTodayDate();
     setCurrentMonth();
     setupTabs();
 }
 
-// ইউজারের নাম লোড করা
+// Load user name
 async function loadUserName() {
     try {
         const { getDoc, doc } = window.firebaseFunctions;
@@ -211,7 +211,7 @@ async function loadUserName() {
 
         if (userDoc.exists()) {
             const userData = userDoc.data();
-            document.getElementById('userName').textContent = '👤 ' + userData.name;
+            document.getElementById('userName').textContent = 'User: ' + userData.name;
         }
     } catch (error) {
         console.error('Error loading user name:', error);
@@ -241,7 +241,7 @@ function setupExpensesListener() {
             });
         });
 
-        // UI আপডেট করা
+        // Update UI
         displayExpenses();
         updateTotal();
         updateBudgetDisplay();
@@ -276,14 +276,14 @@ function setupBudgetsListener() {
 }
 
 // ===================================
-// খরচ যোগ করা (Firebase এ সেভ হবে)
+// ADD EXPENSE (Saves to Firebase)
 // ===================================
 
 document.getElementById('expenseForm').addEventListener('submit', async (e) => {
     e.preventDefault();
 
     if (!currentUser) {
-        alert('❌ দয়া করে আগে লগইন করুন!');
+        alert('Please login first!');
         return;
     }
 
@@ -293,7 +293,7 @@ document.getElementById('expenseForm').addEventListener('submit', async (e) => {
     const description = document.getElementById('description').value;
 
     if (!date || !category || !amount) {
-        alert('দয়া করে সব তথ্য পূরণ করুন!');
+        alert('Please fill all required fields!');
         return;
     }
 
@@ -308,19 +308,19 @@ document.getElementById('expenseForm').addEventListener('submit', async (e) => {
             createdAt: new Date().toISOString()
         });
 
-        // ফর্ম রিসেট
+        // Reset form
         document.getElementById('expenseForm').reset();
         setTodayDate();
 
-        alert('✅ খরচ সফলভাবে যোগ হয়েছে!');
+        alert('Expense added successfully!');
     } catch (error) {
         console.error('Error adding expense:', error);
-        alert('❌ খরচ যোগ করতে সমস্যা হয়েছে!');
+        alert('Failed to add expense!');
     }
 });
 
 // ===================================
-// খরচের লিস্ট দেখানো
+// DISPLAY EXPENSE LIST
 // ===================================
 
 function displayExpenses(filteredExpenses = null) {
@@ -330,7 +330,7 @@ function displayExpenses(filteredExpenses = null) {
     expensesList.innerHTML = '';
 
     if (expensesToShow.length === 0) {
-        expensesList.innerHTML = '<p class="no-expenses">এখনো কোনো খরচ যোগ করা হয়নি</p>';
+        expensesList.innerHTML = '<p class="no-expenses">No expenses found</p>';
         return;
     }
 
@@ -341,7 +341,7 @@ function displayExpenses(filteredExpenses = null) {
 }
 
 // ===================================
-// খরচের এলিমেন্ট তৈরি করা
+// CREATE EXPENSE ELEMENT
 // ===================================
 
 function createExpenseElement(expense) {
@@ -354,23 +354,23 @@ function createExpenseElement(expense) {
             ${expense.description ? `<div class="expense-description">${expense.description}</div>` : ''}
             <div class="expense-date">${formatDate(expense.date)}</div>
         </div>
-        <div class="expense-amount">${expense.amount} টাকা</div>
-        <button class="delete-btn" onclick="deleteExpense('${expense.id}')">🗑️ মুছুন</button>
+        <div class="expense-amount">${expense.amount} TK</div>
+        <button class="delete-btn" onclick="deleteExpense('${expense.id}')">Delete</button>
     `;
 
     return div;
 }
 
 // ===================================
-// তারিখ ফরম্যাট করা (বাংলায়)
+// FORMAT DATE (Bengali)
 // ===================================
 
 function formatDate(dateString) {
     const date = new Date(dateString);
     const bengaliMonths = [
-        'জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল',
-        'মে', 'জুন', 'জুলাই', 'আগস্ট',
-        'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর'
+        'January', 'February', 'March', 'April',
+        'May', 'June', 'July', 'August',
+        'September', 'October', 'November', 'December'
     ];
 
     const day = date.getDate();
@@ -381,65 +381,65 @@ function formatDate(dateString) {
 }
 
 // ===================================
-// মোট খরচ ক্যালকুলেট করা
+// CALCULATE TOTAL EXPENSE
 // ===================================
 
 function updateTotal() {
     const total = expenses.reduce((sum, expense) => sum + expense.amount, 0);
-    document.getElementById('totalAmount').textContent = `${total} টাকা`;
+    document.getElementById('totalAmount').textContent = `${total} TK`;
 }
 
 // ===================================
-// খরচ ডিলিট করা (Firebase থেকে)
+// DELETE EXPENSE (from Firebase)
 // ===================================
 
 async function deleteExpense(id) {
-    if (!confirm('আপনি কি নিশ্চিত যে এই খরচটি মুছে ফেলতে চান?')) {
+    if (!confirm('Are you sure you want to delete this expense?')) {
         return;
     }
 
     try {
         const { deleteDoc, doc } = window.firebaseFunctions;
         await deleteDoc(doc(window.firebaseDB, 'expenses', id));
-        // Real-time listener স্বয়ংক্রিয়ভাবে UI আপডেট করবে
+        // Real-time listener will automatically update UI
     } catch (error) {
         console.error('Error deleting expense:', error);
-        alert('❌ খরচ মুছে ফেলতে সমস্যা হয়েছে!');
+        alert('Failed to delete expense!');
     }
 }
 
 // ===================================
-// সব খরচ মুছে ফেলা
+// CLEAR ALL EXPENSES
 // ===================================
 
 document.getElementById('clearAll').addEventListener('click', async () => {
     if (expenses.length === 0) {
-        alert('মুছে ফেলার মতো কোনো খরচ নেই!');
+        alert('No expenses to delete!');
         return;
     }
 
-    if (!confirm('আপনি কি সত্যিই সব খরচ মুছে ফেলতে চান? এটা আন্ডো করা যাবে না!')) {
+    if (!confirm('Are you sure you want to delete ALL expenses? This cannot be undone!')) {
         return;
     }
 
     try {
         const { deleteDoc, doc } = window.firebaseFunctions;
 
-        // সব খরচ একটি একটি করে মুছে ফেলা
+        // Delete each expense one by one
         const deletePromises = expenses.map(expense =>
             deleteDoc(doc(window.firebaseDB, 'expenses', expense.id))
         );
 
         await Promise.all(deletePromises);
-        alert('✅ সব খরচ মুছে ফেলা হয়েছে!');
+        alert('All expenses deleted!');
     } catch (error) {
         console.error('Error clearing all expenses:', error);
-        alert('❌ সব খরচ মুছে ফেলতে সমস্যা হয়েছে!');
+        alert('Failed to delete expenses!');
     }
 });
 
 // ===================================
-// আজকের তারিখ সেট করা
+// SET TODAY'S DATE
 // ===================================
 
 function setTodayDate() {
@@ -448,7 +448,7 @@ function setTodayDate() {
 }
 
 // ===================================
-// বর্তমান মাস সেট করা
+// SET CURRENT MONTH
 // ===================================
 
 function setCurrentMonth() {
@@ -465,7 +465,7 @@ function setCurrentMonth() {
 }
 
 // ===================================
-// ট্যাব নেভিগেশন সিস্টেম
+// TAB NAVIGATION SYSTEM
 // ===================================
 
 function setupTabs() {
@@ -490,7 +490,7 @@ function setupTabs() {
 }
 
 // ===================================
-// ফিল্টার সিস্টেম
+// FILTER SYSTEM
 // ===================================
 
 document.getElementById('applyFilter').addEventListener('click', () => {
@@ -513,7 +513,7 @@ document.getElementById('applyFilter').addEventListener('click', () => {
     displayExpenses(filtered);
 
     if (filtered.length === 0) {
-        alert('কোনো খরচ পাওয়া যায়নি!');
+        alert('No expenses found!');
     }
 });
 
@@ -525,16 +525,16 @@ document.getElementById('clearFilter').addEventListener('click', () => {
 });
 
 // ===================================
-// CSV এক্সপোর্ট সিস্টেম
+// CSV EXPORT SYSTEM
 // ===================================
 
 document.getElementById('exportCSV').addEventListener('click', () => {
     if (expenses.length === 0) {
-        alert('এক্সপোর্ট করার মতো কোনো ডেটা নেই!');
+        alert('No data to export!');
         return;
     }
 
-    let csvContent = 'তারিখ,ক্যাটাগরি,বিবরণ,খরচ (টাকা)\n';
+    let csvContent = 'Date,Category,Description,Amount (TK)\n';
 
     expenses.forEach(expense => {
         const row = `${expense.date},${expense.category},"${expense.description}",${expense.amount}`;
@@ -546,18 +546,18 @@ document.getElementById('exportCSV').addEventListener('click', () => {
     const url = URL.createObjectURL(blob);
 
     link.setAttribute('href', url);
-    link.setAttribute('download', `খরচের_হিসাব_${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute('download', `expense-tracker_${new Date().toISOString().split('T')[0]}.csv`);
     link.style.visibility = 'hidden';
 
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
 
-    alert('✅ CSV ফাইল ডাউনলোড শুরু হয়েছে!');
+    alert('CSV file download started!');
 });
 
 // ===================================
-// রিপোর্ট জেনারেশন সিস্টেম
+// REPORT GENERATION SYSTEM
 // ===================================
 
 document.getElementById('reportMonth').addEventListener('change', generateReport);
@@ -585,9 +585,9 @@ function updateReportSummary(monthExpenses, selectedMonth) {
     const daysInMonth = new Date(year, month, 0).getDate();
     const avgDaily = total > 0 ? (total / daysInMonth).toFixed(2) : 0;
 
-    document.getElementById('monthTotal').textContent = `${total} টাকা`;
+    document.getElementById('monthTotal').textContent = `${total} TK`;
     document.getElementById('monthTransactions').textContent = transactions;
-    document.getElementById('dailyAverage').textContent = `${avgDaily} টাকা`;
+    document.getElementById('dailyAverage').textContent = `${avgDaily} TK`;
 }
 
 function calculateCategoryTotals(monthExpenses) {
@@ -659,7 +659,7 @@ function updateDailyChart(monthExpenses, selectedMonth) {
         dailyTotals[day] += expense.amount;
     });
 
-    const labels = Object.keys(dailyTotals).map(d => `${d} তারিখ`);
+    const labels = Object.keys(dailyTotals).map(d => `${d} Date`);
     const data = Object.values(dailyTotals);
 
     dailyChart = new Chart(ctx, {
@@ -667,7 +667,7 @@ function updateDailyChart(monthExpenses, selectedMonth) {
         data: {
             labels: labels,
             datasets: [{
-                label: 'খরচ (টাকা)',
+                label: 'Expense (TK)',
                 data: data,
                 backgroundColor: '#667eea',
                 borderRadius: 5
@@ -696,7 +696,7 @@ function displayCategoryBreakdown(categoryTotals, monthExpenses) {
     const total = Object.values(categoryTotals).reduce((sum, val) => sum + val, 0);
 
     if (total === 0) {
-        categoryBreakdownList.innerHTML = '<p class="no-expenses">এই মাসে কোনো খরচ নেই</p>';
+        categoryBreakdownList.innerHTML = '<p class="no-expenses">No expenses this month</p>';
         return;
     }
 
@@ -710,7 +710,7 @@ function displayCategoryBreakdown(categoryTotals, monthExpenses) {
         div.innerHTML = `
             <span class="breakdown-category">${category}</span>
             <div>
-                <span class="breakdown-amount">${amount} টাকা</span>
+                <span class="breakdown-amount">${amount} TK</span>
                 <span class="breakdown-percentage"> (${percentage}%)</span>
             </div>
         `;
@@ -719,12 +719,12 @@ function displayCategoryBreakdown(categoryTotals, monthExpenses) {
 }
 
 // ===================================
-// বাজেট ম্যানেজমেন্ট সিস্টেম (Firebase এ সেভ হবে)
+// BUDGET MANAGEMENT SYSTEM (Saves to Firebase)
 // ===================================
 
 document.getElementById('setBudget').addEventListener('click', async () => {
     if (!currentUser) {
-        alert('❌ দয়া করে আগে লগইন করুন!');
+        alert('Please login first!');
         return;
     }
 
@@ -732,14 +732,14 @@ document.getElementById('setBudget').addEventListener('click', async () => {
     const amount = parseFloat(document.getElementById('budgetAmount').value);
 
     if (!month || !amount) {
-        alert('দয়া করে মাস এবং বাজেটের পরিমাণ পূরণ করুন!');
+        alert('Please enter month and budget amount!');
         return;
     }
 
     try {
         const { setDoc, doc, collection } = window.firebaseFunctions;
 
-        // আগে থেকে বাজেট আছে কিনা চেক করা
+        // Check if budget already exists
         const budgetRef = doc(window.firebaseDB, 'budgets', `${currentUser.uid}_${month}`);
         await setDoc(budgetRef, {
             userId: currentUser.uid,
@@ -749,10 +749,10 @@ document.getElementById('setBudget').addEventListener('click', async () => {
         });
 
         document.getElementById('budgetAmount').value = '';
-        alert('✅ বাজেট সফলভাবে সেট করা হয়েছে!');
+        alert('Budget set successfully!');
     } catch (error) {
         console.error('Error setting budget:', error);
-        alert('❌ বাজেট সেট করতে সমস্যা হয়েছে!');
+        alert('Failed to set budget!');
     }
 });
 
@@ -771,9 +771,9 @@ function updateBudgetDisplay() {
     const remaining = budget - spent;
     const percentage = budget > 0 ? (spent / budget) * 100 : 0;
 
-    document.getElementById('budgetTotal').textContent = `${budget} টাকা`;
-    document.getElementById('budgetSpent').textContent = `${spent} টাকা`;
-    document.getElementById('budgetRemaining').textContent = `${remaining >= 0 ? remaining : 0} টাকা`;
+    document.getElementById('budgetTotal').textContent = `${budget} TK`;
+    document.getElementById('budgetSpent').textContent = `${spent} TK`;
+    document.getElementById('budgetRemaining').textContent = `${remaining >= 0 ? remaining : 0} TK`;
 
     const displayPercentage = Math.min(percentage, 100);
     const progressBar = document.getElementById('budgetProgressBar');
@@ -784,50 +784,50 @@ function updateBudgetDisplay() {
 
     if (percentage >= 100) {
         progressBar.classList.add('danger');
-        budgetMessage.textContent = '⚠️ বাজেট অতিক্রম করেছে!';
+        budgetMessage.textContent = 'Warning: Budget exceeded!';
         budgetMessage.style.color = '#e74c3c';
     } else if (percentage >= 80) {
         progressBar.classList.add('warning');
-        budgetMessage.textContent = '⚡ সাবধান! বাজেট প্রায় শেষ।';
+        budgetMessage.textContent = 'Caution: Budget almost finished!';
         budgetMessage.style.color = '#f39c12';
     } else if (budget > 0) {
-        budgetMessage.textContent = '✅ বাজেটের মধ্যে আছেন।';
+        budgetMessage.textContent = 'Good: Within budget';
         budgetMessage.style.color = '#27ae60';
     } else {
-        budgetMessage.textContent = '📝 এই মাসের জন্য বাজেট সেট করুন।';
+        budgetMessage.textContent = 'Please set a budget for this month';
         budgetMessage.style.color = '#333';
     }
 }
 
 // ===================================
-// কোড এক্সপ্লেইনেশন (বাংলায়)
+// CODE EXPLANATION
 // ===================================
 
 /*
-নতুন কী কী যোগ হলো:
+What's new:
 
-১. Firebase Authentication:
-   - ইমেইল/পাসওয়ার্ড দিয়ে রেজিস্ট্রেশন
-   - লগইন/লগআউট সিস্টেম
+1. Firebase Authentication:
+   - Email/Password registration
+   - Login/Logout system
    - Auth state listener
 
-২. Firestore Database:
-   - প্রতিটি ইউজারের আলাদা ডেটা (userId দিয়ে আলাদা)
+2. Firestore Database:
+   - Separate data for each user (by userId)
    - Real-time sync (onSnapshot listener)
-   - Cloud এ অটোমেটিক সেভ
+   - Automatic save to cloud
 
-৩. Security:
-   - প্রতিটি খরচ userId সহ সেভ হয়
-   - Query করার সময় userId চেক হয়
-   - এক ইউজার অন্য ইউজারের ডেটা দেখতে পারে না
+3. Security:
+   - Each expense saved with userId
+   - Query checks userId
+   - One user cannot see another's data
 
-৪. Real-time Features:
-   - খরচ যোগ করলে সাথে সাথে সব ডিভাইসে দেখা যাবে
-   - মোবাইল থেকে খরচ যোগ করলে কম্পিউটারে সাথে সাথে আসবে
-   - কোনো refresh লাগবে না!
+4. Real-time Features:
+   - Expense added → instantly visible on all devices
+   - Mobile add → instantly visible on computer
+   - No refresh needed!
 
-৫. User Data Structure:
-   - users collection: ইউজারের নাম, ইমেইল
-   - expenses collection: খরচের ডেটা (userId সহ)
-   - budgets collection: বাজেট ডেটা (userId সহ)
+5. User Data Structure:
+   - users collection: user's name, email
+   - expenses collection: expense data (with userId)
+   - budgets collection: budget data (with userId)
 */

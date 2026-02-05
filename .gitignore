@@ -1,27 +1,27 @@
-# ডিপেন্ডেন্সি
+# Dependencies
 node_modules/
 package-lock.json
 
-# এনভায়রনমেন্ট ফাইল
+# Environment variables
 .env
 .env.local
 
-# লগ ফাইল
+# Log files
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# এডিটর সেটিংস
+# Editor settings
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
 
-# OS ফাইল
+# OS files
 .DS_Store
 Thumbs.db
 
-# বিল্ড ফাইল
+# Build files
 dist/
 build/

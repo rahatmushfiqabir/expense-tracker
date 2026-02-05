@@ -1,123 +1,105 @@
-# 💰 আমার খরচের হিসাব | Expense Tracker
+# Expense Tracker App
 
-<div align="center">
+A complete real-time expense tracking application with user authentication. Each user has their own account and data storage.
 
-![GitHub Issues](https://img.shields.io/github/issues/username/expense-tracker)
-![GitHub Stars](https://img.shields.io/github/stars/username/expense-tracker)
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
+## Features
 
-একটি সম্পূর্ণ **রিয়েল-টাইম খরচ ট্র্যাকার অ্যাপ্লিকেশন** যা প্রতিটি ব্যবহারকারীর জন্য আলাদা অ্যাকাউন্ট এবং ডেটা সংরক্ষণ করে।
+### User Authentication
+- Email/Password registration
+- Complete login/logout system
+- Separate data for each user
 
-[🚀 Live Demo](#) • [📖 Documentation](#features) • [🤝 Contributing](#contributing)
+### Expense Management
+- Add expenses easily
+- View all expenses list
+- Delete expenses
+- Filter by date and category
+- Export data in CSV format
 
-</div>
+### Reports & Analytics
+- Monthly report generation
+- Pie chart by category
+- Bar chart by day
+- Category-wise breakdown
 
----
+### Budget Planning
+- Set monthly budget
+- Track budget vs expenses
+- Smart budget alerts
 
-## ✨ ফিচারসমূহ (Features)
+### Real-time Sync
+- Auto sync with Firebase Firestore
+- Access same account on multiple devices
+- Access from anywhere
 
-### 🔐 ইউজার অথেন্টিকেশন
-- ✅ Email/Password দিয়ে রেজিস্ট্রেশন
-- ✅ সম্পূর্ণ লগইন/লগআউট সিস্টেম
-- ✅ প্রতিটি ইউজারের আলাদা ডেটা
+## Tech Stack
 
-### 💰 খরচ ম্যানেজমেন্ট
-- ➕ খুব সহজে খরচ যোগ করা
-- 📋 সব খরচের তালিকা দেখা
-- 🗑️ খরচ ডিলিট করা
-- 🔍 তারিখ ও ক্যাটাগরি দিয়ে ফিল্টার করা
-- 📤 CSV ফরম্যাটে ডেটা এক্সপোর্ট
+### Frontend
+- HTML5 - Semantic markup
+- CSS3 - Responsive design
+- JavaScript (ES6+) - Interactive features
 
-### 📊 রিপোর্ট ও অ্যানালিসিস
-- 📈 মাসিক রিপোর্ট জেনারেট
-- 🥧 ক্যাটাগরি অনুযায়ী পাই চার্ট
-- 📅 দিন অনুযাযীী বার চার্ট
-- 💡 ক্যাটাগরি ভিত্তিক ব্রেকডাউন
+### Backend
+- Firebase Authentication - User management
+- Cloud Firestore - NoSQL database
+- Real-time Sync - Live data updates
 
-### 🎯 বাজেট প্ল্যানিং
-- 💎 মাসিক বাজেট সেট করা
-- 📊 বাজেট বনাম খরচ ট্র্যাকিং
-- ⚠️ স্মার্ট বাজেট অ্যালার্ম
+### Libraries
+- Chart.js - Beautiful charts and graphs
+- Firebase SDK - Authentication and database
 
-### 🔥 রিয়েল-টাইম সিঙ্ক
-- ☁️ Firebase Firestore দিয়ে অটোমেটিক সিঙ্ক
-- 📱 একাধিক ডিভাইসে একই অ্যাকাউন্ট
-- 🌍 যেকোনো জায়গা থেকে অ্যাক্সেস
+## Installation
 
----
+### Method 1: Direct Use (Easiest)
 
-## 🛠️ টেকনোলজি ব্যবহৃত (Tech Stack)
-
-### ফ্রন্টএন্ড
-- **HTML5** - সিম্যান্টিক মার্কআপ
-- **CSS3** - রেসপন্সিভ ডিজাইন
-- **JavaScript (ES6+)** - ইন্টারঅ্যাক্টিভ ফিচার
-
-### ব্যাকএন্ড
-- **Firebase Authentication** - ইউজার ম্যানেজমেন্ট
-- **Cloud Firestore** - NoSQL ডেটাবেস
-- **Real-time Sync** - লাইভ ডেটা আপডেট
-
-### লাইব্রেরি
-- **Chart.js** - সুন্দর চার্ট ও গ্রাফ
-- **Firebase SDK** - অথেন্টিকেশন ও ডেটাবেস
-
----
-
-## 🚀 কীভাবে ইনস্টল করবেন (Installation)
-
-### পদ্ধতি ১: সরাসরি ব্যবহার (সবচেয়ে সহজ)
-
-১. রিপোজিটরি ক্লোন করুন:
+1. Clone the repository:
 ```bash
-git clone https://github.com/your-username/expense-tracker.git
+git clone https://github.com/rahatmushfiqabir/expense-tracker.git
 cd expense-tracker
 ```
 
-২. `index.html` ফাইল ব্রাউজারে ওপেন করুন
+2. Open `index.html` in browser
 
-### পদ্ধতি ২: লোকাল সার্ভারে চালানো
+### Method 2: Run on Local Server
 
 ```bash
-# Python 3 ব্যবহার করে
+# Using Python 3
 python -m http.server 8000
 
-# বা Node.js ব্যবহার করে
+# Or using Node.js
 npx serve
 ```
 
-এরপর `http://localhost:8000` এ যান
+Then visit `http://localhost:8000`
 
-### পদ্ধতি ৩: Netlify এ হোস্ট করা (ফ্রি)
+### Method 3: Host on Netlify (Free)
 
-১. https://app.netlify.com/drop যান
-২. প্রজেক্ট ফোল্ডার ড্রাগ করে ফেলে দিন
-৩. মুহূর্তি লাইভ লিংক পান! ⚡
+1. Go to https://app.netlify.com/drop
+2. Drag and drop the project folder
+3. Get instant live link!
 
----
+## Setup Configuration
 
-## ⚙️ সেটআপ কনফিগারেশন (Setup)
+### Firebase Configuration
 
-### Firebase কনফিগারেশন
-
-১. [Firebase Console](https://console.firebase.google.com/) এ নতুন প্রজেক্ট তৈরি করুন
-২. **Authentication** চালু করুন (Email/Password)
-৩. **Firestore Database** চালু করুন (Test Mode)
-৪. Web App যোগ করুন এবং কনফিগ কপি করুন
-৫. `index.html` এ `firebaseConfig` আপডেট করুন
+1. Create a new project at [Firebase Console](https://console.firebase.google.com/)
+2. Enable **Authentication** (Email/Password)
+3. Enable **Firestore Database** (Test Mode)
+4. Add a Web App and copy the config
+5. Update `firebaseConfig` in `index.html`
 
 ```javascript
 const firebaseConfig = {
   apiKey: "YOUR_API_KEY",
   authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
+  projectId: " "YOUR_PROJECT_ID",
   // ...
 };
 ```
 
 ### Firestore Security Rules
 
-Firestore Rules ট্যাবে এই কোড বসান:
+Add these rules in Firestore Rules tab:
 
 ```javascript
 rules_version = '2';
@@ -138,102 +120,69 @@ service cloud.firestore {
 }
 ```
 
----
+## Usage
 
-## 📸 স্ক্রিনশট (Screenshots)
+### 1. Register Account
+- Create account with name, email, and password
 
-### লগইন পেজ
-![Login Page](screenshots/login.png)
+### 2. Add Expense
+- Enter date, category, amount, and description
+- Click "Add Expense" button
 
-### ড্যাশবোর্ড
-![Dashboard](screenshots/dashboard.png)
+### 3. View Reports
+- Go to "Reports" tab
+- Select month
+- View charts and breakdowns
 
-### মাসিক রিপোর্ট
-![Reports](screenshots/reports.png)
+### 4. Set Budget
+- Go to "Budget" tab
+- Enter month and amount
+- Track your budget
 
----
+## Upcoming Features
 
-## 📖 ব্যবহারের নির্দেশ (Usage)
+- [ ] Dark Mode support
+- [ ] Multi-currency support
+- [ ] Split expenses
+- [ ] Reminder system
+- [ ] Password reset
+- [ ] PDF report generation
+- [ ] Data backup/restore
 
-### ১. রেজিস্ট্রেশন করা
-- নাম, ইমেইল, পাসওয়ার্ড দিয়ে অ্যাকাউন্ট তৈরি করুন
+## Contributing
 
-### ২. খরচ যোগ করা
-- তারিখ, ক্যাটাগরি, টাকা ও বিবরণ লিখুন
-- "খরচ যোগ করুন" বাটনে ক্লিক করুন
+Contributions are welcome!
 
-### ৩. রিপোর্ট দেখা
-- "রিপোর্ট" ট্যাবে যান
-- মাস সিলেক্ট করুন
-- সুন্দর চার্ট ও ব্রেকডাউন দেখুন
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-### ৪. বাজেট সেট করা
-- "বাজেট" ট্যাবে যান
-- মাস ও বাজেটের পরিমাণ দিন
-- বাজেট ট্র্যাক করুন
+## License
 
----
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
 
-## 🌟 ভবিষ্যত ফিচার (Upcoming Features)
+## Developer
 
-- [ ] Dark Mode সাপোর্ট
-- [ ] মাল্টি-কারেন্সি সাপোর্ট
-- [ ] খরচ শেয়ার করা (Split Expenses)
-- [ ] রিমাইন্ডার সিস্টেম
-- [ ] পাসওয়ার্ড রিসেট করা
-- [ ] PDF রিপোর্ট জেনারেট
-- [ ] ডাটা ব্যাকআপ রিস্টোর
+Developed and designed by [Rahat Mushfiq Abir](https://github.com/rahatmushfiqabir)
 
----
+- GitHub: [@rahatmushfiqabir](https://github.com/rahatmushfiqabir)
+- Email: abir_rahat@yahoo.com
 
-## 🤝 কন্ট্রিবিউশন (Contributing)
+## Support
 
-কন্ট্রিবিউশন করতে আগ্রহীত স্বাগত! 😊
+If this project helps you, please support:
 
-১. রিপোজিটরি ফর্ক করুন
-২. আপনার ফিচার ব্রাঞ্চ (`git checkout -b feature/AmazingFeature`)
-৩. কমিট করুন (`git commit -m 'Add some AmazingFeature'`)
-৪. পুশ করুন (`git push origin feature/AmazingFeature`)
-৫. Pull Request খুলুন
+- Star the repository
+- Fork it
+- Open an issue
 
----
+## Contact
 
-## 📝 লাইসেন্স (License)
-
-এই প্রজেক্টটি MIT লাইসেন্সের অধীনে লাইসেন্সকৃত - [LICENSE](LICENSE) ফাইল দেখুন
-
----
-
-## 👨‍💻 ডেভেলপার (Developer)
-
-তৈরি করেছেন এবং ডিজাইন করেছেন - **[আপনার নাম](https://github.com/username)**
-
-- GitHub: [@username](https://github.com/username)
-- Email: your-email@example.com
+- Project: [https://github.com/rahatmushfiqabir/expense-tracker](https://github.com/rahatmushfiqabir/expense-tracker)
+- Email: abir_rahat@yahoo.com
 
 ---
 
-## 🙏 সমর্থন (Support)
-
-যদি এই প্রজেক্টটি আপনার উপকারে আসে, তাহলে:
-
-- ⭐ স্টার দিন
-- 🍴 ফর্ক করুন
-- 🐛 ইস্যু রিপোর্ট করুন
-
----
-
-## 📧 যোগাযোগ (Contact)
-
-- প্রজেক্ট লিংক: [https://github.com/username/expense-tracker](https://github.com/username/expense-tracker)
-- ইমেইল: your-email@example.com
-
----
-
-<div align="center">
-
-**মন্তব্য করুন বা পরামর্শ দিন! 💬**
-
-Made with ❤️ by [Your Name](https://github.com/username)
-
-</div>
+Made with love by [Rahat Mushfiq Abir](https://github.com/rahatmushfiqabir)
