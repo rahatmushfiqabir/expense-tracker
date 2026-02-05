@@ -211,7 +211,7 @@ async function loadUserName() {
 
         if (userDoc.exists()) {
             const userData = userDoc.data();
-            document.getElementById('userName').textContent = 'User: ' + userData.name;
+            document.getElementById('userName').textContent = 'ব্যবহারকারী: ' + userData.name;
         }
     } catch (error) {
         console.error('Error loading user name:', error);
@@ -283,7 +283,7 @@ document.getElementById('expenseForm').addEventListener('submit', async (e) => {
     e.preventDefault();
 
     if (!currentUser) {
-        alert('Please login first!');
+        alert('অনুগ্রহ করে প্রথমে লগইন করুন!');
         return;
     }
 
@@ -293,7 +293,7 @@ document.getElementById('expenseForm').addEventListener('submit', async (e) => {
     const description = document.getElementById('description').value;
 
     if (!date || !category || !amount) {
-        alert('Please fill all required fields!');
+        alert('অনুগ্রহ করে সব প্রয়োজনীয় তথ্য পূরণ করুন!');
         return;
     }
 
@@ -312,10 +312,10 @@ document.getElementById('expenseForm').addEventListener('submit', async (e) => {
         document.getElementById('expenseForm').reset();
         setTodayDate();
 
-        alert('Expense added successfully!');
+        alert('খরচ সফলভাবে যোগ করা হয়েছে!');
     } catch (error) {
         console.error('Error adding expense:', error);
-        alert('Failed to add expense!');
+        alert('খরচ যোগ করতে ব্যর্থ হয়েছে!');
     }
 });
 
@@ -330,7 +330,7 @@ function displayExpenses(filteredExpenses = null) {
     expensesList.innerHTML = '';
 
     if (expensesToShow.length === 0) {
-        expensesList.innerHTML = '<p class="no-expenses">No expenses found</p>';
+        expensesList.innerHTML = '<p class="no-expenses">কোনো খরচ পাওয়া যায়নি</p>';
         return;
     }
 
@@ -355,7 +355,7 @@ function createExpenseElement(expense) {
             <div class="expense-date">${formatDate(expense.date)}</div>
         </div>
         <div class="expense-amount">${expense.amount} TK</div>
-        <button class="delete-btn" onclick="deleteExpense('${expense.id}')">Delete</button>
+        <button class="delete-btn" onclick="deleteExpense('${expense.id}')">মুছুন</button>
     `;
 
     return div;
@@ -368,9 +368,9 @@ function createExpenseElement(expense) {
 function formatDate(dateString) {
     const date = new Date(dateString);
     const bengaliMonths = [
-        'January', 'February', 'March', 'April',
-        'May', 'June', 'July', 'August',
-        'September', 'October', 'November', 'December'
+        'জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল',
+        'মে', 'জুন', 'জুলাই', 'আগস্ট',
+        'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর'
     ];
 
     const day = date.getDate();
@@ -394,7 +394,7 @@ function updateTotal() {
 // ===================================
 
 async function deleteExpense(id) {
-    if (!confirm('Are you sure you want to delete this expense?')) {
+    if (!confirm('আপনি কি নিশ্চিত যে আপনি এই খরচটি মুছে ফেলতে চান?')) {
         return;
     }
 
@@ -404,7 +404,7 @@ async function deleteExpense(id) {
         // Real-time listener will automatically update UI
     } catch (error) {
         console.error('Error deleting expense:', error);
-        alert('Failed to delete expense!');
+        alert('খরচ মুছে ফেলতে ব্যর্থ হয়েছে!');
     }
 }
 
@@ -414,11 +414,11 @@ async function deleteExpense(id) {
 
 document.getElementById('clearAll').addEventListener('click', async () => {
     if (expenses.length === 0) {
-        alert('No expenses to delete!');
+        alert('মুছে ফেলার মতো কোনো খরচ নেই!');
         return;
     }
 
-    if (!confirm('Are you sure you want to delete ALL expenses? This cannot be undone!')) {
+    if (!confirm('আপনি কি নিশ্চিত যে আপনি সব খরচ মুছে ফেলতে চান? এটি পূর্বাবস্থায় ফেরানো যাবে না!')) {
         return;
     }
 
@@ -431,10 +431,10 @@ document.getElementById('clearAll').addEventListener('click', async () => {
         );
 
         await Promise.all(deletePromises);
-        alert('All expenses deleted!');
+        alert('সব খরচ মুছে ফেলা হয়েছে!');
     } catch (error) {
         console.error('Error clearing all expenses:', error);
-        alert('Failed to delete expenses!');
+        alert('খরচ মুছে ফেলতে ব্যর্থ হয়েছে!');
     }
 });
 
@@ -513,7 +513,7 @@ document.getElementById('applyFilter').addEventListener('click', () => {
     displayExpenses(filtered);
 
     if (filtered.length === 0) {
-        alert('No expenses found!');
+        alert('কোনো খরচ পাওয়া যায়নি!');
     }
 });
 
@@ -530,7 +530,7 @@ document.getElementById('clearFilter').addEventListener('click', () => {
 
 document.getElementById('exportCSV').addEventListener('click', () => {
     if (expenses.length === 0) {
-        alert('No data to export!');
+        alert('এক্সপোর্ট করার মতো কোনো তথ্য নেই!');
         return;
     }
 
@@ -553,7 +553,7 @@ document.getElementById('exportCSV').addEventListener('click', () => {
     link.click();
     document.body.removeChild(link);
 
-    alert('CSV file download started!');
+    alert('CSV ফাইল ডাউনলোড শুরু হয়েছে!');
 });
 
 // ===================================
@@ -659,7 +659,7 @@ function updateDailyChart(monthExpenses, selectedMonth) {
         dailyTotals[day] += expense.amount;
     });
 
-    const labels = Object.keys(dailyTotals).map(d => `${d} Date`);
+    const labels = Object.keys(dailyTotals).map(d => `${d} তারিখ`);
     const data = Object.values(dailyTotals);
 
     dailyChart = new Chart(ctx, {
@@ -696,7 +696,7 @@ function displayCategoryBreakdown(categoryTotals, monthExpenses) {
     const total = Object.values(categoryTotals).reduce((sum, val) => sum + val, 0);
 
     if (total === 0) {
-        categoryBreakdownList.innerHTML = '<p class="no-expenses">No expenses this month</p>';
+        categoryBreakdownList.innerHTML = '<p class="no-expenses">এই মাসে কোনো খরচ নেই</p>';
         return;
     }
 
@@ -724,7 +724,7 @@ function displayCategoryBreakdown(categoryTotals, monthExpenses) {
 
 document.getElementById('setBudget').addEventListener('click', async () => {
     if (!currentUser) {
-        alert('Please login first!');
+        alert('অনুগ্রহ করে প্রথমে লগইন করুন!');
         return;
     }
 
@@ -732,7 +732,7 @@ document.getElementById('setBudget').addEventListener('click', async () => {
     const amount = parseFloat(document.getElementById('budgetAmount').value);
 
     if (!month || !amount) {
-        alert('Please enter month and budget amount!');
+        alert('অনুগ্রহ করে মাস এবং বাজেটের পরিমাণ লিখুন!');
         return;
     }
 
@@ -749,10 +749,10 @@ document.getElementById('setBudget').addEventListener('click', async () => {
         });
 
         document.getElementById('budgetAmount').value = '';
-        alert('Budget set successfully!');
+        alert('বাজেট সফলভাবে সেট করা হয়েছে!');
     } catch (error) {
         console.error('Error setting budget:', error);
-        alert('Failed to set budget!');
+        alert('বাজেট সেট করতে ব্যর্থ হয়েছে!');
     }
 });
 
@@ -784,17 +784,17 @@ function updateBudgetDisplay() {
 
     if (percentage >= 100) {
         progressBar.classList.add('danger');
-        budgetMessage.textContent = 'Warning: Budget exceeded!';
+        budgetMessage.textContent = 'সতর্কতা: বাজেট অতিক্রান্ত হয়েছে!';
         budgetMessage.style.color = '#e74c3c';
     } else if (percentage >= 80) {
         progressBar.classList.add('warning');
-        budgetMessage.textContent = 'Caution: Budget almost finished!';
+        budgetMessage.textContent = 'সতর্কতা: বাজেট প্রায় শেষ!';
         budgetMessage.style.color = '#f39c12';
     } else if (budget > 0) {
-        budgetMessage.textContent = 'Good: Within budget';
+        budgetMessage.textContent = 'ভালো: বাজেটের মধ্যে আছে';
         budgetMessage.style.color = '#27ae60';
     } else {
-        budgetMessage.textContent = 'Please set a budget for this month';
+        budgetMessage.textContent = 'এই মাসের জন্য একটি বাজেট সেট করুন';
         budgetMessage.style.color = '#333';
     }
 }
