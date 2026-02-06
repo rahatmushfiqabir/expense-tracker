@@ -72,12 +72,6 @@ npx serve
 
 Then visit `http://localhost:8000`
 
-### Method 3: Host on Netlify (Free)
-
-1. Go to https://app.netlify.com/drop
-2. Drag and drop the project folder
-3. Get instant live link!
-
 ## Setup Configuration
 
 ### Firebase Configuration
