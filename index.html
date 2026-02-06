@@ -342,6 +342,9 @@
         </div>
     </div>
 
+    <!-- Firebase Config - আলাদা ফাইল থেকে লোড হবে -->
+    <script src="config.js"></script>
+
     <!-- Firebase SDK - Authentication & Firestore -->
     <script type="module">
         // Firebase SDK import
@@ -350,17 +353,8 @@
         import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, query, where, orderBy, onSnapshot, setDoc, getDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
         // ==========================================
-        // FIREBASE CONFIG - এখানে তোমার কনফিগ বসাও
+        // FIREBASE CONFIG - config.js থেকে লোড হচ্ছে
         // ==========================================
-
-        const firebaseConfig = {
-            apiKey: "YOUR_API_KEY_HERE",
-            authDomain: "expense-tracker-e7b16.firebaseapp.com",
-            projectId: "expense-tracker-e7b16",
-            storageBucket: "expense-tracker-e7b16.firebasestorage.app",
-            messagingSenderId: "972650539076",
-            appId: "1:972650539076:web:a1b0bf24e1f9969151b411"
-        };
 
         // Firebase initialize করা
         const app = initializeApp(firebaseConfig);

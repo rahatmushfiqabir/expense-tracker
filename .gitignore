@@ -25,3 +25,7 @@ Thumbs.db
 # Build files
 dist/
 build/
+
+# Config files with sensitive data
+config.js
+firebase-config.js
