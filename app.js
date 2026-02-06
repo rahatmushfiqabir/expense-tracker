@@ -47,6 +47,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Setup auth tabs
     setupAuthTabs();
+
+    // Setup all app event listeners
+    setupAppEventListeners();
 });
 
 // Setup authentication tabs
@@ -76,6 +79,17 @@ function setupAuthTabs() {
     // Register form handler
     const registerForm = document.getElementById('registerFormElement');
     registerForm.addEventListener('submit', handleRegister);
+
+    // Logout button handler
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+        try {
+            const { signOut } = window.firebaseFunctions;
+            await signOut(window.firebaseAuth);
+            // Auth state listener will automatically show auth section
+        } catch (error) {
+            alert('লগআউট ব্যর্থ হয়েছে! ' + error.message);
+        }
+    });
 }
 
 // Login handler
@@ -154,16 +168,204 @@ function showAppSection() {
     document.getElementById('appSection').style.display = 'block';
 }
 
-// Logout handler
-document.getElementById('logoutBtn').addEventListener('click', async () => {
-    try {
-        const { signOut } = window.firebaseFunctions;
-        await signOut(window.firebaseAuth);
-        // Auth state listener will automatically show auth section
-    } catch (error) {
-        alert('লগআউট ব্যর্থ হয়েছে! ' + error.message);
+// Setup all app event listeners
+function setupAppEventListeners() {
+    // Expense form submit handler
+    const expenseForm = document.getElementById('expenseForm');
+    if (expenseForm) {
+        expenseForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (!currentUser) {
+                alert('অনুগ্রহ করে প্রথমে লগইন করুন!');
+                return;
+            }
+
+            const date = document.getElementById('date').value;
+            const category = document.getElementById('category').value;
+            const amount = parseFloat(document.getElementById('amount').value);
+            const description = document.getElementById('description').value;
+
+            if (!date || !category || !amount) {
+                alert('অনুগ্রহ করে সব প্রয়োজনীয় তথ্য পূরণ করুন!');
+                return;
+            }
+
+            try {
+                const { addDoc, collection } = window.firebaseFunctions;
+                await addDoc(collection(window.firebaseDB, 'expenses'), {
+                    userId: currentUser.uid,
+                    date: date,
+                    category: category,
+                    amount: amount,
+                    description: description || category,
+                    createdAt: new Date().toISOString()
+                });
+
+                // Reset form
+                document.getElementById('expenseForm').reset();
+                setTodayDate();
+
+                alert('খরচ সফলভাবে যোগ করা হয়েছে!');
+            } catch (error) {
+                console.error('Error adding expense:', error);
+                alert('খরচ যোগ করতে ব্যর্থ হয়েছে!');
+            }
+        });
     }
-});
+
+    // Clear all expenses handler
+    const clearAllBtn = document.getElementById('clearAll');
+    if (clearAllBtn) {
+        clearAllBtn.addEventListener('click', async () => {
+            if (expenses.length === 0) {
+                alert('মুছে ফেলার মতো কোনো খরচ নেই!');
+                return;
+            }
+
+            if (!confirm('আপনি কি নিশ্চিত যে আপনি সব খরচ মুছে ফেলতে চান? এটি পূর্বাবস্থায় ফেরানো যাবে না!')) {
+                return;
+            }
+
+            try {
+                const { deleteDoc, doc } = window.firebaseFunctions;
+
+                // Delete each expense one by one
+                const deletePromises = expenses.map(expense =>
+                    deleteDoc(doc(window.firebaseDB, 'expenses', expense.id))
+                );
+
+                await Promise.all(deletePromises);
+                alert('সব খরচ মুছে ফেলা হয়েছে!');
+            } catch (error) {
+                console.error('Error clearing all expenses:', error);
+                alert('খরচ মুছে ফেলতে ব্যর্থ হয়েছে!');
+            }
+        });
+    }
+
+    // Apply filter handler
+    const applyFilterBtn = document.getElementById('applyFilter');
+    if (applyFilterBtn) {
+        applyFilterBtn.addEventListener('click', () => {
+            const dateFrom = document.getElementById('filterDateFrom').value;
+            const dateTo = document.getElementById('filterDateTo').value;
+            const category = document.getElementById('filterCategory').value;
+
+            let filtered = [...expenses];
+
+            if (dateFrom) {
+                filtered = filtered.filter(exp => exp.date >= dateFrom);
+            }
+            if (dateTo) {
+                filtered = filtered.filter(exp => exp.date <= dateTo);
+            }
+            if (category) {
+                filtered = filtered.filter(exp => exp.category === category);
+            }
+
+            displayExpenses(filtered);
+
+            if (filtered.length === 0) {
+                alert('কোনো খরচ পাওয়া যায়নি!');
+            }
+        });
+    }
+
+    // Clear filter handler
+    const clearFilterBtn = document.getElementById('clearFilter');
+    if (clearFilterBtn) {
+        clearFilterBtn.addEventListener('click', () => {
+            document.getElementById('filterDateFrom').value = '';
+            document.getElementById('filterDateTo').value = '';
+            document.getElementById('filterCategory').value = '';
+            displayExpenses();
+        });
+    }
+
+    // Export CSV handler
+    const exportCSVBtn = document.getElementById('exportCSV');
+    if (exportCSVBtn) {
+        exportCSVBtn.addEventListener('click', () => {
+            if (expenses.length === 0) {
+                alert('এক্সপোর্ট করার মতো কোনো তথ্য নেই!');
+                return;
+            }
+
+            // Add UTF-8 BOM for proper Excel rendering of Bengali text
+            let csvContent = '\uFEFFDate,Category,Description,Amount (TK)\n';
+
+            expenses.forEach(expense => {
+                const row = `${expense.date},${expense.category},"${expense.description}",${expense.amount}`;
+                csvContent += row + '\n';
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+
+            link.setAttribute('href', url);
+            link.setAttribute('download', `expense-tracker_${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            alert('CSV ফাইল ডাউনলোড শুরু হয়েছে!');
+        });
+    }
+
+    // Report month change handler
+    const reportMonth = document.getElementById('reportMonth');
+    if (reportMonth) {
+        reportMonth.addEventListener('change', generateReport);
+    }
+
+    // Set budget handler
+    const setBudgetBtn = document.getElementById('setBudget');
+    if (setBudgetBtn) {
+        setBudgetBtn.addEventListener('click', async () => {
+            if (!currentUser) {
+                alert('অনুগ্রহ করে প্রথমে লগইন করুন!');
+                return;
+            }
+
+            const month = document.getElementById('budgetMonth').value;
+            const amount = parseFloat(document.getElementById('budgetAmount').value);
+
+            if (!month || !amount) {
+                alert('অনুগ্রহ করে মাস এবং বাজেটের পরিমাণ লিখুন!');
+                return;
+            }
+
+            try {
+                const { setDoc, doc, collection } = window.firebaseFunctions;
+
+                // Check if budget already exists
+                const budgetRef = doc(window.firebaseDB, 'budgets', `${currentUser.uid}_${month}`);
+                await setDoc(budgetRef, {
+                    userId: currentUser.uid,
+                    month: month,
+                    amount: amount,
+                    updatedAt: new Date().toISOString()
+                });
+
+                document.getElementById('budgetAmount').value = '';
+                alert('বাজেট সফলভাবে সেট করা হয়েছে!');
+            } catch (error) {
+                console.error('Error setting budget:', error);
+                alert('বাজেট সেট করতে ব্যর্থ হয়েছে!');
+            }
+        });
+    }
+
+    // Budget month change handler
+    const budgetMonth = document.getElementById('budgetMonth');
+    if (budgetMonth) {
+        budgetMonth.addEventListener('change', updateBudgetDisplay);
+    }
+}
 
 // Firebase error message converter to Bengali
 function getErrorMessage(code) {
@@ -279,46 +481,6 @@ function setupBudgetsListener() {
 // ADD EXPENSE (Saves to Firebase)
 // ===================================
 
-document.getElementById('expenseForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    if (!currentUser) {
-        alert('অনুগ্রহ করে প্রথমে লগইন করুন!');
-        return;
-    }
-
-    const date = document.getElementById('date').value;
-    const category = document.getElementById('category').value;
-    const amount = parseFloat(document.getElementById('amount').value);
-    const description = document.getElementById('description').value;
-
-    if (!date || !category || !amount) {
-        alert('অনুগ্রহ করে সব প্রয়োজনীয় তথ্য পূরণ করুন!');
-        return;
-    }
-
-    try {
-        const { addDoc, collection } = window.firebaseFunctions;
-        await addDoc(collection(window.firebaseDB, 'expenses'), {
-            userId: currentUser.uid,
-            date: date,
-            category: category,
-            amount: amount,
-            description: description || category,
-            createdAt: new Date().toISOString()
-        });
-
-        // Reset form
-        document.getElementById('expenseForm').reset();
-        setTodayDate();
-
-        alert('খরচ সফলভাবে যোগ করা হয়েছে!');
-    } catch (error) {
-        console.error('Error adding expense:', error);
-        alert('খরচ যোগ করতে ব্যর্থ হয়েছে!');
-    }
-});
-
 // ===================================
 // DISPLAY EXPENSE LIST
 // ===================================
@@ -412,32 +574,6 @@ async function deleteExpense(id) {
 // CLEAR ALL EXPENSES
 // ===================================
 
-document.getElementById('clearAll').addEventListener('click', async () => {
-    if (expenses.length === 0) {
-        alert('মুছে ফেলার মতো কোনো খরচ নেই!');
-        return;
-    }
-
-    if (!confirm('আপনি কি নিশ্চিত যে আপনি সব খরচ মুছে ফেলতে চান? এটি পূর্বাবস্থায় ফেরানো যাবে না!')) {
-        return;
-    }
-
-    try {
-        const { deleteDoc, doc } = window.firebaseFunctions;
-
-        // Delete each expense one by one
-        const deletePromises = expenses.map(expense =>
-            deleteDoc(doc(window.firebaseDB, 'expenses', expense.id))
-        );
-
-        await Promise.all(deletePromises);
-        alert('সব খরচ মুছে ফেলা হয়েছে!');
-    } catch (error) {
-        console.error('Error clearing all expenses:', error);
-        alert('খরচ মুছে ফেলতে ব্যর্থ হয়েছে!');
-    }
-});
-
 // ===================================
 // SET TODAY'S DATE
 // ===================================
@@ -493,75 +629,17 @@ function setupTabs() {
 // FILTER SYSTEM
 // ===================================
 
-document.getElementById('applyFilter').addEventListener('click', () => {
-    const dateFrom = document.getElementById('filterDateFrom').value;
-    const dateTo = document.getElementById('filterDateTo').value;
-    const category = document.getElementById('filterCategory').value;
-
-    let filtered = [...expenses];
-
-    if (dateFrom) {
-        filtered = filtered.filter(exp => exp.date >= dateFrom);
-    }
-    if (dateTo) {
-        filtered = filtered.filter(exp => exp.date <= dateTo);
-    }
-    if (category) {
-        filtered = filtered.filter(exp => exp.category === category);
-    }
-
-    displayExpenses(filtered);
-
-    if (filtered.length === 0) {
-        alert('কোনো খরচ পাওয়া যায়নি!');
-    }
-});
-
-document.getElementById('clearFilter').addEventListener('click', () => {
-    document.getElementById('filterDateFrom').value = '';
-    document.getElementById('filterDateTo').value = '';
-    document.getElementById('filterCategory').value = '';
-    displayExpenses();
-});
+// ===================================
+// FILTER SYSTEM
+// ===================================
 
 // ===================================
 // CSV EXPORT SYSTEM
 // ===================================
 
-document.getElementById('exportCSV').addEventListener('click', () => {
-    if (expenses.length === 0) {
-        alert('এক্সপোর্ট করার মতো কোনো তথ্য নেই!');
-        return;
-    }
-
-    // Add UTF-8 BOM for proper Excel rendering of Bengali text
-    let csvContent = '\uFEFFDate,Category,Description,Amount (TK)\n';
-
-    expenses.forEach(expense => {
-        const row = `${expense.date},${expense.category},"${expense.description}",${expense.amount}`;
-        csvContent += row + '\n';
-    });
-
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-
-    link.setAttribute('href', url);
-    link.setAttribute('download', `expense-tracker_${new Date().toISOString().split('T')[0]}.csv`);
-    link.style.visibility = 'hidden';
-
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
-    alert('CSV ফাইল ডাউনলোড শুরু হয়েছে!');
-});
-
 // ===================================
 // REPORT GENERATION SYSTEM
 // ===================================
-
-document.getElementById('reportMonth').addEventListener('change', generateReport);
 
 function generateReport() {
     const selectedMonth = document.getElementById('reportMonth').value;
@@ -720,44 +798,8 @@ function displayCategoryBreakdown(categoryTotals, monthExpenses) {
 }
 
 // ===================================
-// BUDGET MANAGEMENT SYSTEM (Saves to Firebase)
+// BUDGET MANAGEMENT SYSTEM
 // ===================================
-
-document.getElementById('setBudget').addEventListener('click', async () => {
-    if (!currentUser) {
-        alert('অনুগ্রহ করে প্রথমে লগইন করুন!');
-        return;
-    }
-
-    const month = document.getElementById('budgetMonth').value;
-    const amount = parseFloat(document.getElementById('budgetAmount').value);
-
-    if (!month || !amount) {
-        alert('অনুগ্রহ করে মাস এবং বাজেটের পরিমাণ লিখুন!');
-        return;
-    }
-
-    try {
-        const { setDoc, doc, collection } = window.firebaseFunctions;
-
-        // Check if budget already exists
-        const budgetRef = doc(window.firebaseDB, 'budgets', `${currentUser.uid}_${month}`);
-        await setDoc(budgetRef, {
-            userId: currentUser.uid,
-            month: month,
-            amount: amount,
-            updatedAt: new Date().toISOString()
-        });
-
-        document.getElementById('budgetAmount').value = '';
-        alert('বাজেট সফলভাবে সেট করা হয়েছে!');
-    } catch (error) {
-        console.error('Error setting budget:', error);
-        alert('বাজেট সেট করতে ব্যর্থ হয়েছে!');
-    }
-});
-
-document.getElementById('budgetMonth').addEventListener('change', updateBudgetDisplay);
 
 function updateBudgetDisplay() {
     const month = document.getElementById('budgetMonth').value;
