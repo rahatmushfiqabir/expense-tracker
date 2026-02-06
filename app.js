@@ -27,6 +27,7 @@ const waitForFirebase = () => {
 
 // Check authentication state when page loads
 document.addEventListener('DOMContentLoaded', async () => {
+    console.log('✅ DOMContentLoaded fired');
     await waitForFirebase();
 
     const { onAuthStateChanged } = window.firebaseFunctions;
@@ -46,10 +47,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // Setup auth tabs
+    console.log('⚙️ Setting up auth tabs...');
     setupAuthTabs();
 
     // Setup all app event listeners
+    console.log('⚙️ Setting up app event listeners...');
     setupAppEventListeners();
+    console.log('✅ All event listeners setup complete');
 });
 
 // Setup authentication tabs
@@ -170,13 +174,19 @@ function showAppSection() {
 
 // Setup all app event listeners
 function setupAppEventListeners() {
+    console.log('🔧 setupAppEventListeners() called');
+
     // Expense form submit handler
     const expenseForm = document.getElementById('expenseForm');
+    console.log('🔍 expenseForm element:', expenseForm);
     if (expenseForm) {
+        console.log('✅ Attaching expenseForm submit listener');
         expenseForm.addEventListener('submit', async (e) => {
+            console.log('📝 Expense form submitted!');
             e.preventDefault();
 
             if (!currentUser) {
+                console.warn('⚠️ No user logged in');
                 alert('অনুগ্রহ করে প্রথমে লগইন করুন!');
                 return;
             }
@@ -186,12 +196,16 @@ function setupAppEventListeners() {
             const amount = parseFloat(document.getElementById('amount').value);
             const description = document.getElementById('description').value;
 
+            console.log('📊 Expense data:', { date, category, amount, description, userId: currentUser.uid });
+
             if (!date || !category || !amount) {
+                console.warn('⚠️ Missing required fields');
                 alert('অনুগ্রহ করে সব প্রয়োজনীয় তথ্য পূরণ করুন!');
                 return;
             }
 
             try {
+                console.log('💾 Saving to Firebase...');
                 const { addDoc, collection } = window.firebaseFunctions;
                 await addDoc(collection(window.firebaseDB, 'expenses'), {
                     userId: currentUser.uid,
@@ -201,6 +215,7 @@ function setupAppEventListeners() {
                     description: description || category,
                     createdAt: new Date().toISOString()
                 });
+                console.log('✅ Expense saved successfully!');
 
                 // Reset form
                 document.getElementById('expenseForm').reset();
@@ -208,10 +223,13 @@ function setupAppEventListeners() {
 
                 alert('খরচ সফলভাবে যোগ করা হয়েছে!');
             } catch (error) {
-                console.error('Error adding expense:', error);
+                console.error('❌ Error adding expense:', error);
                 alert('খরচ যোগ করতে ব্যর্থ হয়েছে!');
             }
         });
+        console.log('✅ Expense form listener attached');
+    } else {
+        console.error('❌ expenseForm element NOT FOUND!');
     }
 
     // Clear all expenses handler
@@ -324,9 +342,13 @@ function setupAppEventListeners() {
 
     // Set budget handler
     const setBudgetBtn = document.getElementById('setBudget');
+    console.log('🔍 setBudget button:', setBudgetBtn);
     if (setBudgetBtn) {
+        console.log('✅ Attaching setBudget click listener');
         setBudgetBtn.addEventListener('click', async () => {
+            console.log('📝 Set budget button clicked!');
             if (!currentUser) {
+                console.warn('⚠️ No user logged in');
                 alert('অনুগ্রহ করে প্রথমে লগইন করুন!');
                 return;
             }
@@ -334,12 +356,16 @@ function setupAppEventListeners() {
             const month = document.getElementById('budgetMonth').value;
             const amount = parseFloat(document.getElementById('budgetAmount').value);
 
+            console.log('📊 Budget data:', { month, amount, userId: currentUser.uid });
+
             if (!month || !amount) {
+                console.warn('⚠️ Missing required fields');
                 alert('অনুগ্রহ করে মাস এবং বাজেটের পরিমাণ লিখুন!');
                 return;
             }
 
             try {
+                console.log('💾 Saving budget to Firebase...');
                 const { setDoc, doc, collection } = window.firebaseFunctions;
 
                 // Check if budget already exists
@@ -350,14 +376,18 @@ function setupAppEventListeners() {
                     amount: amount,
                     updatedAt: new Date().toISOString()
                 });
+                console.log('✅ Budget saved successfully!');
 
                 document.getElementById('budgetAmount').value = '';
                 alert('বাজেট সফলভাবে সেট করা হয়েছে!');
             } catch (error) {
-                console.error('Error setting budget:', error);
+                console.error('❌ Error setting budget:', error);
                 alert('বাজেট সেট করতে ব্যর্থ হয়েছে!');
             }
         });
+        console.log('✅ Set budget listener attached');
+    } else {
+        console.error('❌ setBudget button NOT FOUND!');
     }
 
     // Budget month change handler

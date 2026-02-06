@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Expense Tracker Test</title>
+</head>
+<body>
+    <h1>Testing Expense Tracker</h1>
+    <div id="results"></div>
+
+    <iframe id="appFrame" src="index.html" style="width:100%; height:600px; border:2px solid #ccc;"></iframe>
+
+    <script>
+        const results = [];
+
+        function log(message, status) {
+            results.push({ message, status });
+            const color = status === 'success' ? 'green' : status === 'error' ? 'red' : 'orange';
+            document.getElementById('results').innerHTML += `<p style="color:${color}">${status.toUpperCase()}: ${message}</p>`;
+        }
+
+        setTimeout(() => {
+            const frame = document.getElementById('appFrame');
+            const frameDoc = frame.contentDocument || frame.contentWindow.document;
+
+            // Test 1: Check if expense form exists
+            const expenseForm = frameDoc.getElementById('expenseForm');
+            if (expenseForm) {
+                log('Expense form found', 'success');
+            } else {
+                log('Expense form NOT found!', 'error');
+            }
+
+            // Test 2: Check if Firebase loaded
+            if (frame.contentWindow.firebaseFunctions) {
+                log('Firebase loaded', 'success');
+            } else {
+                log('Firebase NOT loaded!', 'error');
+            }
+
+            // Test 3: Check if setupAppEventListeners exists
+            if (typeof frame.contentWindow.setupAppEventListeners === 'function') {
+                log('setupAppEventListeners function exists', 'success');
+            } else {
+                log('setupAppEventListeners function NOT found!', 'error');
+            }
+
+            // Test 4: Check if submit button exists
+            const submitBtn = frameDoc.querySelector('#expenseForm button[type="submit"]');
+            if (submitBtn) {
+                log('Submit button found', 'success');
+            } else {
+                log('Submit button NOT found!', 'error');
+            }
+
+            // Test 5: Check event listeners
+            log('Checking if event listeners are attached...', 'info');
+            const hasListener = expenseForm && expenseForm.onclick !== null;
+            log(`Event listener check: ${hasListener}`, hasListener ? 'success' : 'error');
+
+        }, 2000);
+    </script>
+</body>
+</html>
