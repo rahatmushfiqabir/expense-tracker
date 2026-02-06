@@ -10,6 +10,97 @@ let budgets = {};
 let categoryChart = null;
 let dailyChart = null;
 
+// ===================================
+// MODAL POPUP FUNCTIONS
+// ===================================
+
+/**
+ * Show success modal with message
+ * @param {string} title - Modal title
+ * @param {string} message - Success message
+ * @param {number} autoClose - Auto close after ms (0 = no auto close)
+ */
+function showSuccessModal(title, message, autoClose = 0) {
+    const modal = document.getElementById('successModal');
+    const titleEl = document.getElementById('successModalTitle');
+    const messageEl = document.getElementById('successModalMessage');
+
+    titleEl.textContent = title;
+    messageEl.textContent = message;
+    modal.classList.add('show');
+
+    if (autoClose > 0) {
+        setTimeout(() => {
+            closeModal('successModal');
+        }, autoClose);
+    }
+}
+
+/**
+ * Show confirmation modal
+ * @param {string} title - Modal title
+ * @param {string} message - Confirmation message
+ * @param {Function} onConfirm - Callback when confirmed
+ * @param {string} confirmText - Confirm button text
+ */
+function showConfirmModal(title, message, onConfirm, confirmText = 'হ্যাঁ, মুছুন') {
+    const modal = document.getElementById('confirmModal');
+    const titleEl = document.getElementById('confirmModalTitle');
+    const messageEl = document.getElementById('confirmModalMessage');
+    const actionBtn = document.getElementById('confirmModalAction');
+
+    titleEl.textContent = title;
+    messageEl.textContent = message;
+    actionBtn.textContent = confirmText;
+
+    // Remove old event listener and add new one
+    const newActionBtn = actionBtn.cloneNode(true);
+    actionBtn.parentNode.replaceChild(newActionBtn, actionBtn);
+
+    newActionBtn.addEventListener('click', () => {
+        onConfirm();
+        closeModal('confirmModal');
+    });
+
+    modal.classList.add('show');
+}
+
+/**
+ * Show error modal
+ * @param {string} title - Modal title
+ * @param {string} message - Error message
+ */
+function showErrorModal(title, message) {
+    const modal = document.getElementById('errorModal');
+    const titleEl = document.getElementById('errorModalTitle');
+    const messageEl = document.getElementById('errorModalMessage');
+
+    titleEl.textContent = title;
+    messageEl.textContent = message;
+    modal.classList.add('show');
+}
+
+/**
+ * Close modal by ID
+ * @param {string} modalId - Modal element ID
+ */
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    modal.classList.remove('show');
+}
+
+// Close modal when clicking overlay
+function setupModalCloseHandlers() {
+    const modals = document.querySelectorAll('.modal-overlay');
+    modals.forEach(modal => {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.remove('show');
+            }
+        });
+    });
+}
+
 // Wait for Firebase to be ready
 const waitForFirebase = () => {
     return new Promise((resolve) => {
@@ -49,6 +140,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Setup auth tabs
     console.log('⚙️ Setting up auth tabs...');
     setupAuthTabs();
+
+    // Setup modal close handlers
+    setupModalCloseHandlers();
 
     // Setup all app event listeners
     console.log('⚙️ Setting up app event listeners...');
@@ -91,7 +185,7 @@ function setupAuthTabs() {
             await signOut(window.firebaseAuth);
             // Auth state listener will automatically show auth section
         } catch (error) {
-            alert('লগআউট ব্যর্থ হয়েছে! ' + error.message);
+            showErrorModal('ত্রুটি!', 'লগআউট ব্যর্থ হয়েছে! ' + error.message);
         }
     });
 }
@@ -115,6 +209,32 @@ async function handleLogin(e) {
     }
 }
 
+// Password validation function
+function validatePassword(password) {
+    // Check minimum length (at least 6 characters for Firebase compatibility)
+    if (password.length < 6) {
+        return { valid: false, message: 'পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে' };
+    }
+
+    // Check for at least one uppercase letter (optional, good practice)
+    // if (!/[A-Z]/.test(password)) {
+    //     return { valid: false, message: 'পাসওয়ার্ডে কমপক্ষে একটি বড় হাতের অক্ষর থাকতে হবে (A-Z)' };
+    // }
+
+    // Check for at least one lowercase letter
+    if (!/[a-z]/.test(password)) {
+        return { valid: false, message: 'পাসওয়ার্ডে কমপক্ষে একটি ছোট হাতের অক্ষর থাকতে হবে (a-z)' };
+    }
+
+    // Check for at least one number
+    if (!/\d/.test(password)) {
+        return { valid: false, message: 'পাসওয়ার্ডে কমপক্ষে একটি সংখ্যা থাকতে হবে (0-9)' };
+    }
+
+    // Password is valid
+    return { valid: true };
+}
+
 // Registration handler
 async function handleRegister(e) {
     e.preventDefault();
@@ -125,6 +245,15 @@ async function handleRegister(e) {
     const confirmPassword = document.getElementById('registerConfirmPassword').value;
     const registerError = document.getElementById('registerError');
     const registerSuccess = document.getElementById('registerSuccess');
+
+    // Password strength validation
+    const passwordValidation = validatePassword(password);
+    if (!passwordValidation.valid) {
+        registerError.textContent = passwordValidation.message;
+        registerError.classList.add('show');
+        setTimeout(() => registerError.classList.remove('show'), 5000);
+        return;
+    }
 
     // Password match check
     if (password !== confirmPassword) {
@@ -187,7 +316,7 @@ function setupAppEventListeners() {
 
             if (!currentUser) {
                 console.warn('⚠️ No user logged in');
-                alert('অনুগ্রহ করে প্রথমে লগইন করুন!');
+                showErrorModal('ত্রুটি!', 'অনুগ্রহ করে প্রথমে লগইন করুন!');
                 return;
             }
 
@@ -200,7 +329,7 @@ function setupAppEventListeners() {
 
             if (!date || !category || !amount) {
                 console.warn('⚠️ Missing required fields');
-                alert('অনুগ্রহ করে সব প্রয়োজনীয় তথ্য পূরণ করুন!');
+                showErrorModal('ত্রুটি!', 'অনুগ্রহ করে সব প্রয়োজনীয় তথ্য পূরণ করুন!');
                 return;
             }
 
@@ -221,10 +350,10 @@ function setupAppEventListeners() {
                 document.getElementById('expenseForm').reset();
                 setTodayDate();
 
-                alert('খরচ সফলভাবে যোগ করা হয়েছে!');
+                showSuccessModal('সফল!', 'খরচ সফলভাবে যোগ করা হয়েছে!', 3000);
             } catch (error) {
                 console.error('❌ Error adding expense:', error);
-                alert('খরচ যোগ করতে ব্যর্থ হয়েছে!');
+                showErrorModal('ত্রুটি!', 'খরচ যোগ করতে ব্যর্থ হয়েছে! অনুগ্রহ করে আবার চেষ্টা করুন।');
             }
         });
         console.log('✅ Expense form listener attached');
@@ -237,28 +366,31 @@ function setupAppEventListeners() {
     if (clearAllBtn) {
         clearAllBtn.addEventListener('click', async () => {
             if (expenses.length === 0) {
-                alert('মুছে ফেলার মতো কোনো খরচ নেই!');
+                showErrorModal('তথ্য নেই', 'মুছে ফেলার মতো কোনো খরচ নেই!');
                 return;
             }
 
-            if (!confirm('আপনি কি নিশ্চিত যে আপনি সব খরচ মুছে ফেলতে চান? এটি পূর্বাবস্থায় ফেরানো যাবে না!')) {
-                return;
-            }
+            showConfirmModal(
+                'নিশ্চিত করুন',
+                'আপনি কি নিশ্চিত যে আপনি সব খরচ মুছে ফেলতে চান? এটি পূর্বাবস্থায় ফেরানো যাবে না!',
+                async () => {
+                    try {
+                        const { deleteDoc, doc } = window.firebaseFunctions;
 
-            try {
-                const { deleteDoc, doc } = window.firebaseFunctions;
+                        // Delete each expense one by one
+                        const deletePromises = expenses.map(expense =>
+                            deleteDoc(doc(window.firebaseDB, 'expenses', expense.id))
+                        );
 
-                // Delete each expense one by one
-                const deletePromises = expenses.map(expense =>
-                    deleteDoc(doc(window.firebaseDB, 'expenses', expense.id))
-                );
-
-                await Promise.all(deletePromises);
-                alert('সব খরচ মুছে ফেলা হয়েছে!');
-            } catch (error) {
-                console.error('Error clearing all expenses:', error);
-                alert('খরচ মুছে ফেলতে ব্যর্থ হয়েছে!');
-            }
+                        await Promise.all(deletePromises);
+                        showSuccessModal('সফল!', 'সব খরচ মুছে ফেলা হয়েছে!', 3000);
+                    } catch (error) {
+                        console.error('Error clearing all expenses:', error);
+                        showErrorModal('ত্রুটি!', 'খরচ মুছে ফেলতে ব্যর্থ হয়েছে!');
+                    }
+                },
+                'হ্যাঁ, মুছুন'
+            );
         });
     }
 
@@ -285,7 +417,7 @@ function setupAppEventListeners() {
             displayExpenses(filtered);
 
             if (filtered.length === 0) {
-                alert('কোনো খরচ পাওয়া যায়নি!');
+                showErrorModal('কোনো তথ্য নেই', 'কোনো খরচ পাওয়া যায়নি!');
             }
         });
     }
@@ -306,7 +438,7 @@ function setupAppEventListeners() {
     if (exportCSVBtn) {
         exportCSVBtn.addEventListener('click', () => {
             if (expenses.length === 0) {
-                alert('এক্সপোর্ট করার মতো কোনো তথ্য নেই!');
+                showErrorModal('কোনো তথ্য নেই', 'এক্সপোর্ট করার মতো কোনো তথ্য নেই!');
                 return;
             }
 
@@ -330,7 +462,7 @@ function setupAppEventListeners() {
             link.click();
             document.body.removeChild(link);
 
-            alert('CSV ফাইল ডাউনলোড শুরু হয়েছে!');
+            showSuccessModal('সফল!', 'CSV ফাইল ডাউনলোড শুরু হয়েছে!', 2500);
         });
     }
 
@@ -349,7 +481,7 @@ function setupAppEventListeners() {
             console.log('📝 Set budget button clicked!');
             if (!currentUser) {
                 console.warn('⚠️ No user logged in');
-                alert('অনুগ্রহ করে প্রথমে লগইন করুন!');
+                showErrorModal('ত্রুটি!', 'অনুগ্রহ করে প্রথমে লগইন করুন!');
                 return;
             }
 
@@ -360,7 +492,7 @@ function setupAppEventListeners() {
 
             if (!month || !amount) {
                 console.warn('⚠️ Missing required fields');
-                alert('অনুগ্রহ করে মাস এবং বাজেটের পরিমাণ লিখুন!');
+                showErrorModal('ত্রুটি!', 'অনুগ্রহ করে মাস এবং বাজেটের পরিমাণ লিখুন!');
                 return;
             }
 
@@ -379,10 +511,10 @@ function setupAppEventListeners() {
                 console.log('✅ Budget saved successfully!');
 
                 document.getElementById('budgetAmount').value = '';
-                alert('বাজেট সফলভাবে সেট করা হয়েছে!');
+                showSuccessModal('সফল!', 'বাজেট সফলভাবে সেট করা হয়েছে!', 3000);
             } catch (error) {
                 console.error('❌ Error setting budget:', error);
-                alert('বাজেট সেট করতে ব্যর্থ হয়েছে!');
+                showErrorModal('ত্রুটি!', 'বাজেট সেট করতে ব্যর্থ হয়েছে! অনুগ্রহ করে আবার চেষ্টা করুন।');
             }
         });
         console.log('✅ Set budget listener attached');
@@ -586,18 +718,22 @@ function updateTotal() {
 // ===================================
 
 async function deleteExpense(id) {
-    if (!confirm('আপনি কি নিশ্চিত যে আপনি এই খরচটি মুছে ফেলতে চান?')) {
-        return;
-    }
-
-    try {
-        const { deleteDoc, doc } = window.firebaseFunctions;
-        await deleteDoc(doc(window.firebaseDB, 'expenses', id));
-        // Real-time listener will automatically update UI
-    } catch (error) {
-        console.error('Error deleting expense:', error);
-        alert('খরচ মুছে ফেলতে ব্যর্থ হয়েছে!');
-    }
+    showConfirmModal(
+        'নিশ্চিত করুন',
+        'আপনি কি নিশ্চিত যে আপনি এই খরচটি মুছে ফেলতে চান?',
+        async () => {
+            try {
+                const { deleteDoc, doc } = window.firebaseFunctions;
+                await deleteDoc(doc(window.firebaseDB, 'expenses', id));
+                showSuccessModal('সফল!', 'খরচ মুছে ফেলা হয়েছে!', 2500);
+                // Real-time listener will automatically update UI
+            } catch (error) {
+                console.error('Error deleting expense:', error);
+                showErrorModal('ত্রুটি!', 'খরচ মুছে ফেলতে ব্যর্থ হয়েছে!');
+            }
+        },
+        'হ্যাঁ, মুছুন'
+    );
 }
 
 // ===================================

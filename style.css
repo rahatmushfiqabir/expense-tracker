@@ -878,3 +878,178 @@ header h1 {
         font-size: 1.5rem;
     }
 }
+
+/* ===================================
+   PROFESSIONAL MODAL POPUPS
+   =================================== */
+
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 10000;
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 0.2s ease-out;
+}
+
+.modal-overlay.show {
+    display: flex;
+}
+
+.modal-container {
+    background: white;
+    border-radius: 20px;
+    padding: 40px 30px;
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: slideUp 0.3s ease-out;
+    position: relative;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.modal-icon {
+    margin: 0 auto 20px;
+    width: 80px;
+    height: 80px;
+}
+
+.modal-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.modal-icon.warning svg {
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+.modal-icon.error svg {
+    animation: shake 0.5s ease-in-out;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+@keyframes shake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    25% {
+        transform: translateX(-5px);
+    }
+    75% {
+        transform: translateX(5px);
+    }
+}
+
+.modal-title {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.success-modal .modal-title {
+    color: #27ae60;
+}
+
+.confirm-modal .modal-title {
+    color: #f39c12;
+}
+
+.error-modal .modal-title {
+    color: #e74c3c;
+}
+
+.modal-message {
+    font-size: 1.1rem;
+    color: #666;
+    margin-bottom: 25px;
+    line-height: 1.5;
+}
+
+.modal-btn {
+    padding: 12px 30px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    min-width: 120px;
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.modal-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.modal-btn:active {
+    transform: translateY(0);
+}
+
+/* Modal close on overlay click */
+.modal-overlay {
+    cursor: pointer;
+}
+
+.modal-container {
+    cursor: default;
+}
+
+/* Responsive modals */
+@media (max-width: 480px) {
+    .modal-container {
+        padding: 30px 20px;
+        margin: 20px;
+    }
+
+    .modal-title {
+        font-size: 1.5rem;
+    }
+
+    .modal-message {
+        font-size: 1rem;
+    }
+
+    .modal-btn {
+        padding: 10px 20px;
+        font-size: 0.95rem;
+        min-width: 100px;
+    }
+
+    .modal-icon {
+        width: 60px;
+        height: 60px;
+    }
+}

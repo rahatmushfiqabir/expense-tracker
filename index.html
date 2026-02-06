@@ -178,6 +178,7 @@
                                 type="text"
                                 id="description"
                                 placeholder="উদাহরণ: বাজার থেকে কেনাকাটা"
+                                required
                             >
                         </div>
 
@@ -391,6 +392,61 @@
 
         console.log('Firebase connected successfully!');
     </script>
+
+    <!-- ================================
+         PROFESSIONAL MODAL POPUPS
+         ================================ -->
+
+    <!-- Success Modal -->
+    <div id="successModal" class="modal-overlay">
+        <div class="modal-container success-modal">
+            <div class="modal-icon">
+                <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="40" cy="40" r="40" fill="#27ae60" opacity="0.1"/>
+                    <circle cx="40" cy="40" r="32" fill="#27ae60" opacity="0.2"/>
+                    <path d="M25 40L35 50L55 30" stroke="#27ae60" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <h3 class="modal-title" id="successModalTitle">সফল!</h3>
+            <p class="modal-message" id="successModalMessage">অপারেশন সফলভাবে সম্পন্ন হয়েছে</p>
+            <button class="modal-btn btn-primary" onclick="closeModal('successModal')">ঠিক আছে</button>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmModal" class="modal-overlay">
+        <div class="modal-container confirm-modal">
+            <div class="modal-icon warning">
+                <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="40" cy="40" r="40" fill="#f39c12" opacity="0.1"/>
+                    <circle cx="40" cy="40" r="32" fill="#f39c12" opacity="0.2"/>
+                    <path d="M40 25V45M40 55V55.1" stroke="#f39c12" stroke-width="4" stroke-linecap="round"/>
+                </svg>
+            </div>
+            <h3 class="modal-title" id="confirmModalTitle">নিশ্চিত করুন</h3>
+            <p class="modal-message" id="confirmModalMessage">আপনি কি নিশ্চিত?</p>
+            <div class="modal-buttons">
+                <button class="modal-btn btn-secondary" onclick="closeModal('confirmModal')">বাতিল</button>
+                <button class="modal-btn btn-danger" id="confirmModalAction">হ্যাঁ, মুছুন</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Modal -->
+    <div id="errorModal" class="modal-overlay">
+        <div class="modal-container error-modal">
+            <div class="modal-icon error">
+                <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="40" cy="40" r="40" fill="#e74c3c" opacity="0.1"/>
+                    <circle cx="40" cy="40" r="32" fill="#e74c3c" opacity="0.2"/>
+                    <path d="M30 30L50 50M50 30L30 50" stroke="#e74c3c" stroke-width="4" stroke-linecap="round"/>
+                </svg>
+            </div>
+            <h3 class="modal-title" id="errorModalTitle">ত্রুটি!</h3>
+            <p class="modal-message" id="errorModalMessage">কিছু ভুল হয়েছে</p>
+            <button class="modal-btn btn-primary" onclick="closeModal('errorModal')">ঠিক আছে</button>
+        </div>
+    </div>
 
     <!-- জাভাস্ক্রিপ্ট ফাইল লিংক -->
     <script src="app.js"></script>
