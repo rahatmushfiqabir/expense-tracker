@@ -89,6 +89,15 @@ function closeModal(modalId) {
     modal.classList.remove('show');
 }
 
+/**
+ * Open modal by ID
+ * @param {string} modalId - Modal element ID
+ */
+function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    modal.classList.add('show');
+}
+
 // Close modal when clicking overlay
 function setupModalCloseHandlers() {
     const modals = document.querySelectorAll('.modal-overlay');
@@ -466,6 +475,183 @@ function setupAppEventListeners() {
         });
     }
 
+    // PDF Export functionality
+    window.exportToPDF = function() {
+        if (expenses.length === 0) {
+            showErrorModal('কোনো তথ্য নেই', 'এক্সপোর্ট করার মতো কোনো খরচ নেই!');
+            return;
+        }
+
+        try {
+            // Show loading indicator
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'pdf-loading';
+            loadingDiv.innerHTML = '<div class="loading-spinner"></div><p>PDF তৈরি হচ্ছে...</p>';
+            document.body.appendChild(loadingDiv);
+
+            // Initialize jsPDF
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            // Get current user info
+            const userName = currentUser?.displayName || currentUser?.email || 'User';
+            const today = new Date();
+            const exportDate = formatPDFDate(today.toISOString().split('T')[0]);
+
+            // Calculate total
+            const total = expenses.reduce((sum, exp) => sum + parseFloat(exp.amount), 0);
+
+            // Set PDF metadata
+            doc.setProperties({
+                title: 'খরচের হিসাব',
+                subject: 'Personal Expense Tracker',
+                author: 'Expense Tracker App',
+                creator: 'Expense Tracker App'
+            });
+
+            // Add Bengali font support note (using default fonts for compatibility)
+            doc.setFont('helvetica');
+
+            // ==================== HEADER SECTION ====================
+            // Title
+            doc.setFontSize(20);
+            doc.setTextColor(102, 126, 234); // Purple color
+            doc.text('Personal Expense Tracker', 105, 20, { align: 'center' });
+
+            doc.setFontSize(14);
+            doc.setTextColor(50, 50, 50);
+            doc.text('My Expense Report', 105, 28, { align: 'center' });
+
+            // Separator line
+            doc.setDrawColor(200, 200, 200);
+            doc.line(20, 32, 190, 32);
+
+            // ==================== INFO SECTION ====================
+            doc.setFontSize(11);
+            doc.setTextColor(80, 80, 80);
+
+            const infoY = 42;
+            doc.text(`User: ${userName}`, 20, infoY);
+            doc.text(`Date: ${exportDate}`, 20, infoY + 7);
+
+            // Total with highlight
+            doc.setFontSize(12);
+            doc.setTextColor(102, 126, 234);
+            doc.text(`Total Expenses: ${formatCurrency(total)}`, 20, infoY + 16);
+
+            // Second separator
+            doc.setDrawColor(220, 220, 220);
+            doc.line(20, infoY + 22, 190, infoY + 22);
+
+            // ==================== EXPENSE TABLE ====================
+            // Category mapping for PDF (Bengali to English)
+            const categoryMap = {
+                'খাবার': 'Food',
+                'পরিবহন': 'Transport',
+                'শপিং': 'Shopping',
+                'বিল': 'Bills',
+                'চিকিৎসা': 'Medical',
+                'বিনোদন': 'Entertainment',
+                'অন্যান্য': 'Others'
+            };
+
+            // Helper function to format date for PDF
+            function formatPDFDate(dateString) {
+                if (!dateString) return '-';
+                const date = new Date(dateString);
+                const day = String(date.getDate()).padStart(2, '0');
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const year = date.getFullYear();
+                return `${day}/${month}/${year}`;
+            }
+
+            // Prepare table data with proper formatting
+            const tableBody = expenses.map(expense => [
+                formatPDFDate(expense.date),
+                categoryMap[expense.category] || expense.category,
+                expense.description || '-',
+                formatCurrency(expense.amount)
+            ]);
+
+            // Generate table using autoTable
+            doc.autoTable({
+                startY: infoY + 28,
+                head: [['Date', 'Category', 'Description', 'Amount']],
+                body: tableBody,
+                theme: 'grid',
+                styles: {
+                    fontSize: 10,
+                    cellPadding: 5,
+                    font: 'helvetica'
+                },
+                headStyles: {
+                    fillColor: [102, 126, 234],
+                    textColor: 255,
+                    fontStyle: 'bold',
+                    halign: 'center'
+                },
+                columnStyles: {
+                    0: { cellWidth: 30 }, // Date
+                    1: { cellWidth: 35 }, // Category
+                    2: { cellWidth: 85 }, // Description
+                    3: { cellWidth: 25, halign: 'right' } // Amount
+                },
+                alternateRowStyles: {
+                    fillColor: [245, 247, 250]
+                },
+                margin: { top: infoY + 28, left: 20, right: 20 },
+                didDrawPage: function(data) {
+                    // Add page number
+                    doc.setFontSize(9);
+                    doc.setTextColor(150, 150, 150);
+                    doc.text(
+                        `Page ${doc.internal.getNumberOfPages()}`,
+                        105,
+                        doc.internal.pageSize.height - 10,
+                        { align: 'center' }
+                    );
+                }
+            });
+
+            // ==================== FOOTER ====================
+            const finalY = doc.lastAutoTable.finalY || infoY + 28;
+            if (finalY < 250) {
+                doc.setFontSize(9);
+                doc.setTextColor(150, 150, 150);
+                doc.text(
+                    `Generated by Personal Expense Tracker on ${new Date().toLocaleString()}`,
+                    105,
+                    280,
+                    { align: 'center' }
+                );
+            }
+
+            // Save the PDF
+            const fileName = `expense-report_${new Date().toISOString().split('T')[0]}.pdf`;
+            doc.save(fileName);
+
+            // Remove loading indicator
+            document.body.removeChild(loadingDiv);
+
+            showSuccessModal('সফল!', 'PDF ফাইল ডাউনলোড শুরু হয়েছে!', 2500);
+
+        } catch (error) {
+            console.error('PDF Export Error:', error);
+            // Remove loading indicator if exists
+            const loadingDiv = document.querySelector('.pdf-loading');
+            if (loadingDiv) document.body.removeChild(loadingDiv);
+
+            showErrorModal('ত্রুটি!', 'PDF তৈরি করতে ব্যর্থ হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।');
+        }
+    };
+
+    // Helper function for currency formatting in PDF
+    function formatCurrency(amount) {
+        const num = parseFloat(amount);
+        if (isNaN(num)) return '0 TK';
+        return num.toFixed(2) + ' TK';
+    }
+
     // Report month change handler
     const reportMonth = document.getElementById('reportMonth');
     if (reportMonth) {
@@ -527,6 +713,280 @@ function setupAppEventListeners() {
     if (budgetMonth) {
         budgetMonth.addEventListener('change', updateBudgetDisplay);
     }
+
+    // Delete monthly budget handler
+    const deleteMonthlyBudgetBtn = document.getElementById('deleteMonthlyBudget');
+    if (deleteMonthlyBudgetBtn) {
+        deleteMonthlyBudgetBtn.addEventListener('click', async () => {
+            const month = document.getElementById('budgetMonth').value;
+
+            if (!month) {
+                showErrorModal('ত্রুটি!', 'অনুগ্রহ করে প্রথমে মাস নির্বাচন করুন!');
+                return;
+            }
+
+            // Check if budget exists for this month
+            const budget = budgets[month];
+            if (!budget) {
+                showErrorModal('তথ্য নেই', 'এই মাসের জন্য কোনো বাজেট সেট করা নেই!');
+                return;
+            }
+
+            // Show confirmation modal
+            showConfirmModal(
+                'নিশ্চিত করুন',
+                'আপনি কি নিশ্চিত যে আপনি এই মাসের বাজেট মুছে ফেলতে চান? এটি পূর্বাবস্থায় ফেরানো যাবে না!',
+                async () => {
+                    try {
+                        const { deleteDoc, doc } = window.firebaseFunctions;
+
+                        const budgetRef = doc(
+                            window.firebaseDB,
+                            'budgets',
+                            `${currentUser.uid}_${month}`
+                        );
+
+                        await deleteDoc(budgetRef);
+
+                        showSuccessModal('সফল!', 'বাজেট মুছে ফেলা হয়েছে!', 2500);
+
+                        // Clear the amount field
+                        document.getElementById('budgetAmount').value = '';
+
+                        // Update budget display
+                        updateBudgetDisplay();
+                    } catch (error) {
+                        console.error('Error deleting budget:', error);
+                        showErrorModal('ত্রুটি!', 'বাজেট মুছে ফেলতে ব্যর্থ হয়েছে!');
+                    }
+                },
+                'হ্যাঁ, মুছুন'
+            );
+        });
+    }
+
+    // ===================================
+    // CATEGORY BUDGET FUNCTIONALITY
+    // ===================================
+
+    // Budget Type Toggle Handler
+    const budgetTypeBtns = document.querySelectorAll('.budget-type-btn');
+    budgetTypeBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            // Remove active from all buttons
+            budgetTypeBtns.forEach(b => b.classList.remove('active'));
+            // Add active to clicked button
+            btn.classList.add('active');
+
+            // Hide all budget content
+            document.querySelectorAll('.budget-content').forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // Show selected budget content
+            const type = btn.getAttribute('data-type');
+            if (type === 'monthly') {
+                document.getElementById('monthlyBudgetSection').classList.add('active');
+            } else {
+                document.getElementById('categoryBudgetSection').classList.add('active');
+                // Load category budgets when switching to category tab
+                loadCategoryBudgets();
+            }
+        });
+    });
+
+    // Set Category Budget Handler
+    const setCategoryBudgetBtn = document.getElementById('setCategoryBudget');
+    console.log('🔍 setCategoryBudget button:', setCategoryBudgetBtn);
+    if (setCategoryBudgetBtn) {
+        console.log('✅ Attaching setCategoryBudget click listener');
+        setCategoryBudgetBtn.addEventListener('click', async () => {
+            console.log('📝 Set category budget button clicked!');
+
+            if (!currentUser) {
+                console.warn('⚠️ No user logged in');
+                showErrorModal('ত্রুটি!', 'অনুগ্রহ করে প্রথমে লগইন করুন!');
+                return;
+            }
+
+            const category = document.getElementById('categorySelect').value;
+            const month = document.getElementById('categoryBudgetMonth').value;
+            const amount = parseFloat(document.getElementById('categoryBudgetAmount').value);
+
+            console.log('📊 Category budget data:', { category, month, amount, userId: currentUser.uid });
+
+            if (!category || !month || !amount) {
+                console.warn('⚠️ Missing required fields');
+                showErrorModal('ত্রুটি!', 'অনুগ্রহ করে সব তথ্য পূরণ করুন!');
+                return;
+            }
+
+            try {
+                console.log('💾 Saving category budget to Firebase...');
+                const { setDoc, doc } = window.firebaseFunctions;
+
+                // Create document ID: userId_category_month
+                const budgetRef = doc(
+                    window.firebaseDB,
+                    'categoryBudgets',
+                    `${currentUser.uid}_${category}_${month}`
+                );
+
+                await setDoc(budgetRef, {
+                    userId: currentUser.uid,
+                    category: category,
+                    month: month,
+                    amount: amount,
+                    updatedAt: new Date().toISOString()
+                });
+                console.log('✅ Category budget saved successfully!');
+
+                // Clear form
+                document.getElementById('categorySelect').value = '';
+                document.getElementById('categoryBudgetMonth').value = '';
+                document.getElementById('categoryBudgetAmount').value = '';
+
+                showSuccessModal('সফল!', 'ক্যাটাগরি বাজেট সফলভাবে সেট করা হয়েছে!', 3000);
+
+                // Reload category budgets
+                loadCategoryBudgets();
+            } catch (error) {
+                console.error('❌ Error setting category budget:', error);
+                showErrorModal('ত্রুটি!', 'বাজেট সেট করতে ব্যর্থ হয়েছে!');
+            }
+        });
+        console.log('✅ Set category budget listener attached');
+    } else {
+        console.error('❌ setCategoryBudget button NOT FOUND!');
+    }
+}
+
+// Load and display category budgets
+async function loadCategoryBudgets() {
+    if (!currentUser) return;
+
+    try {
+        const { collection, query, where, getDocs } = window.firebaseFunctions;
+
+        const categoryBudgetsRef = collection(window.firebaseDB, 'categoryBudgets');
+        const q = query(categoryBudgetsRef, where('userId', '==', currentUser.uid));
+        const snapshot = await getDocs(q);
+
+        const container = document.getElementById('categoryBudgetsContainer');
+
+        if (snapshot.empty) {
+            container.innerHTML = '<p class="no-budget-message">কোনো ক্যাটাগরি বাজেট সেট করা হয়নি</p>';
+            return;
+        }
+
+        let html = '';
+        snapshot.forEach(docSnapshot => {
+            const budget = docSnapshot.data();
+            const spent = calculateCategoryExpenses(budget.category, budget.month);
+            const remaining = budget.amount - spent;
+            const percentage = Math.min((spent / budget.amount) * 100, 100);
+
+            let progressClass = '';
+            if (percentage >= 90) {
+                progressClass = 'danger';
+            } else if (percentage >= 70) {
+                progressClass = 'warning';
+            }
+
+            // Format month for display
+            const monthDate = new Date(budget.month + '-01');
+            const monthName = monthDate.toLocaleDateString('bn-BD', { year: 'numeric', month: 'long' });
+
+            html += `
+                <div class="category-budget-card">
+                    <div class="category-budget-header">
+                        <div>
+                            <div class="category-budget-title">${budget.category}</div>
+                            <div class="category-budget-month">${monthName}</div>
+                        </div>
+                        <button class="delete-category-budget" onclick="deleteCategoryBudget('${budget.category}', '${budget.month}')">
+                            মুছুন
+                        </button>
+                    </div>
+                    <div class="category-budget-info">
+                        <span>বাজেট: <strong>${formatBDCurrency(budget.amount)}</strong></span>
+                        <span>খরচ: <strong>${formatBDCurrency(spent)}</strong></span>
+                        <span>বাকি: <strong>${formatBDCurrency(remaining)}</strong></span>
+                    </div>
+                    <div class="category-progress-bar">
+                        <div class="category-progress-fill ${progressClass}" style="width: ${percentage}%">
+                            <span class="category-progress-percent">${percentage.toFixed(0)}%</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        container.innerHTML = html;
+    } catch (error) {
+        console.error('Error loading category budgets:', error);
+    }
+}
+
+// Calculate expenses for a specific category and month
+function calculateCategoryExpenses(category, month) {
+    return expenses
+        .filter(exp => exp.category === category && exp.date.startsWith(month))
+        .reduce((sum, exp) => sum + parseFloat(exp.amount), 0);
+}
+
+// Delete category budget
+window.deleteCategoryBudget = async function(category, month) {
+    if (!currentUser) return;
+
+    // Show confirmation modal
+    showConfirmModal(
+        'নিশ্চিত করুন',
+        `আপনি কি নিশ্চিত যে আপনি "${category}" ক্যাটাগরির বাজেট মুছে ফেলতে চান? এটি পূর্বাবস্থায় ফেরানো যাবে না!`,
+        async () => {
+            try {
+                const { doc, deleteDoc } = window.firebaseFunctions;
+
+                const budgetRef = doc(
+                    window.firebaseDB,
+                    'categoryBudgets',
+                    `${currentUser.uid}_${category}_${month}`
+                );
+
+                await deleteDoc(budgetRef);
+
+                showSuccessModal('সফল!', 'ক্যাটাগরি বাজেট মুছে ফেলা হয়েছে!', 2000);
+
+                // Reload category budgets
+                loadCategoryBudgets();
+            } catch (error) {
+                console.error('Error deleting category budget:', error);
+                showErrorModal('ত্রুটি!', 'বাজেট মুছে ফেলতে ব্যর্থ হয়েছে!');
+            }
+        },
+        'হ্যাঁ, মুছুন'
+    );
+};
+
+// Format currency in Bengali
+function formatBDCurrency(amount) {
+    const num = parseFloat(amount);
+    if (isNaN(num)) return '০ টাকা';
+
+    // Convert to Bengali numerals
+    const bengaliNums = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+    const amountStr = num.toFixed(0);
+
+    let bengaliStr = '';
+    for (let digit of amountStr) {
+        if (digit === '.') {
+            bengaliStr += '.';
+        } else {
+            bengaliStr += bengaliNums[parseInt(digit)] || digit;
+        }
+    }
+
+    return bengaliStr + ' টাকা';
 }
 
 // Firebase error message converter to Bengali
@@ -679,7 +1139,15 @@ function createExpenseElement(expense) {
             <div class="expense-date">${formatDate(expense.date)}</div>
         </div>
         <div class="expense-amount">${expense.amount} TK</div>
-        <button class="delete-btn" onclick="deleteExpense('${expense.id}')">মুছুন</button>
+        <div class="expense-actions">
+            <button class="edit-btn" onclick="openEditModal('${expense.id}')" title="সম্পাদনা করুন">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+            </button>
+            <button class="delete-btn" onclick="deleteExpense('${expense.id}')">মুছুন</button>
+        </div>
     `;
 
     return div;
@@ -737,6 +1205,50 @@ async function deleteExpense(id) {
 }
 
 // ===================================
+// EDIT EXPENSE (Open Modal)
+// ===================================
+
+function openEditModal(expenseId) {
+    const expense = expenses.find(e => e.id === expenseId);
+    if (!expense) return;
+
+    document.getElementById('editExpenseId').value = expense.id;
+    document.getElementById('editDate').value = expense.date;
+    document.getElementById('editCategory').value = expense.category;
+    document.getElementById('editAmount').value = expense.amount;
+    document.getElementById('editDescription').value = expense.description;
+
+    openModal('editModal');
+}
+
+// ===================================
+// EDIT EXPENSE FORM SUBMIT HANDLER
+// ===================================
+
+document.getElementById('editExpenseForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const expenseId = document.getElementById('editExpenseId').value;
+    const updatedData = {
+        date: document.getElementById('editDate').value,
+        category: document.getElementById('editCategory').value,
+        amount: parseFloat(document.getElementById('editAmount').value),
+        description: document.getElementById('editDescription').value
+    };
+
+    try {
+        const { updateDoc, doc } = window.firebaseFunctions;
+        await updateDoc(doc(window.firebaseDB, 'expenses', expenseId), updatedData);
+        closeModal('editModal');
+        showSuccessModal('সফল!', 'খরচ আপডেট হয়েছে!', 2000);
+        // Real-time listener will automatically update UI
+    } catch (error) {
+        console.error('Error updating expense:', error);
+        showErrorModal('ত্রুটি!', 'খরচ আপডেট করতে ব্যর্থ হয়েছে!');
+    }
+});
+
+// ===================================
 // CLEAR ALL EXPENSES
 // ===================================
 
@@ -761,9 +1273,11 @@ function setCurrentMonth() {
 
     const reportMonth = document.getElementById('reportMonth');
     const budgetMonth = document.getElementById('budgetMonth');
+    const categoryBudgetMonth = document.getElementById('categoryBudgetMonth');
 
     if (reportMonth) reportMonth.value = currentMonth;
     if (budgetMonth) budgetMonth.value = currentMonth;
+    if (categoryBudgetMonth) categoryBudgetMonth.value = currentMonth;
 }
 
 // ===================================
@@ -1007,6 +1521,74 @@ function updateBudgetDisplay() {
         budgetMessage.style.color = '#333';
     }
 }
+
+// ===================================
+// DARK MODE TOGGLE
+// ===================================
+
+// Dark mode elements
+const darkModeToggle = document.getElementById('darkModeToggle');
+const themeIcon = document.querySelector('.theme-icon');
+
+/**
+ * Initialize dark mode from localStorage
+ */
+function initDarkMode() {
+    const isDarkMode = localStorage.getItem('darkMode') === 'true';
+
+    if (isDarkMode) {
+        document.body.classList.add('dark-mode');
+        updateDarkModeIcon(true);
+    } else {
+        document.body.classList.remove('dark-mode');
+        updateDarkModeIcon(false);
+    }
+}
+
+/**
+ * Toggle dark mode
+ */
+function toggleDarkMode() {
+    const isDarkMode = document.body.classList.toggle('dark-mode');
+
+    // Save preference to localStorage
+    localStorage.setItem('darkMode', isDarkMode);
+
+    // Update icon
+    updateDarkModeIcon(isDarkMode);
+}
+
+/**
+ * Update dark mode toggle icon
+ */
+function updateDarkModeIcon(isDarkMode) {
+    if (!themeIcon) return;
+
+    if (isDarkMode) {
+        // Show moon icon (dark mode is on, click to switch to light)
+        themeIcon.innerHTML = `
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 1-21.21 0 9 9 0 1 1 .21 21.12A9 9 0 0 1 21 12.79z" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        `;
+    } else {
+        // Show sun icon (light mode is on, click to switch to dark)
+        themeIcon.innerHTML = `
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="2" fill="none"/>
+                <path d="M12 3v1m0 4a7 7 0 1 1 14 0 7 7 0 1 1-14 0" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>
+            </svg>
+        `;
+    }
+}
+
+// Add event listener for dark mode toggle
+if (darkModeToggle) {
+    darkModeToggle.addEventListener('click', toggleDarkMode);
+}
+
+// Initialize dark mode on page load
+initDarkMode();
 
 // ===================================
 // CODE EXPLANATION

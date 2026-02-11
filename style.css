@@ -2,6 +2,75 @@
    বেসিক রিসেট এবং বডি স্টাইল
    =================================== */
 
+/* ===================================
+   CSS VARIABLES - Light/Dark Theme
+   =================================== */
+:root {
+    /* Light Theme Colors */
+    --bg-gradient-start: #667eea;
+    --bg-gradient-end: #764ba2;
+    --bg-primary: #f5f7fa;
+    --bg-secondary: #e8ecf4;
+    --bg-card: #ffffff;
+    --text-primary: #1f2937;
+    --text-secondary: #4b5563;
+    --text-inverted: #ffffff;
+    --text-muted: #6b7280;
+    --border-color: #e5e7eb;
+    --input-bg: #ffffff;
+    --input-border: #d1d5db;
+    --expense-item-bg: #f8f9fa;
+    --expense-item-hover: #f1f3f4;
+    --modal-overlay: rgba(15, 23, 42, 0.5);
+    --scrollbar-track: #f1f5f9;
+    --scrollbar-thumb: #c4c4c4;
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.15);
+    --accent-purple: #667eea;
+    --accent-blue: #3b82f6;
+    --accent-green: #10b981;
+    --accent-red: #ef4444;
+    --accent-yellow: #f59e0b;
+    --success-bg: #d1fae5;
+    --success-text: #065f46;
+    --danger-bg: #fee2e2;
+    --danger-text: #991b1b;
+}
+
+body.dark-mode {
+    /* Dark Theme Colors - Professional Deep Blue/Purple Theme */
+    --bg-gradient-start: #0f172a;
+    --bg-gradient-end: #1e1b4b;
+    --bg-primary: #1e293b;
+    --bg-secondary: #334155;
+    --bg-card: #1e293b;
+    --text-primary: #f1f5f9;
+    --text-secondary: #cbd5e1;
+    --text-inverted: #1f2937;
+    --text-muted: #94a3b8;
+    --border-color: #374151;
+    --input-bg: #1e293b;
+    --input-border: #4b5563;
+    --expense-item-bg: #1e293b;
+    --expense-item-hover: #374151;
+    --modal-overlay: rgba(0, 0, 0, 0.75);
+    --scrollbar-track: #1e293b;
+    --scrollbar-thumb: #4b5563;
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.5);
+    --accent-purple: #8b5cf6;
+    --accent-blue: #60a5fa;
+    --accent-green: #34d399;
+    --accent-red: #f87171;
+    --accent-yellow: #fbbf24;
+    --success-bg: #064e3b;
+    --success-text: #d1fae5;
+    --danger-bg: #7f1d1d;
+    --danger-text: #fecaca;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -10,9 +79,10 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
     min-height: 100vh;
     padding: 20px;
+    transition: background 0.3s ease;
 }
 
 /* ===================================
@@ -24,15 +94,18 @@ body {
     justify-content: center;
     align-items: center;
     min-height: calc(100vh - 40px);
+    background: var(--bg-gradient-start);
+    background-attachment: fixed;
 }
 
 .auth-container {
-    background: white;
+    background: var(--bg-card);
     border-radius: 20px;
     padding: 40px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    box-shadow: var(--shadow-lg));
     max-width: 500px;
     width: 100%;
+    border: 1px solid var(--border-color);
 }
 
 .auth-header {
@@ -42,8 +115,21 @@ body {
 
 .auth-header h1 {
     font-size: 2rem;
-    color: #667eea;
+    color: var(--accent-purple);
     margin-bottom: 10px;
+}
+
+body.dark-mode .auth-header h1 {
+    color: var(--text-primary);
+}
+
+.auth-header p {
+    color: var(--text-secondary);
+    font-size: 1rem;
+}
+
+body.dark-mode .auth-header p {
+    color: var(--text-muted);
 }
 
 .auth-header p {
@@ -60,23 +146,33 @@ body {
 .auth-tab-btn {
     flex: 1;
     padding: 12px;
-    background: #f0f0f0;
-    border: none;
+    background: var(--bg-card);
+    border: 2px solid var(--border-color);
     border-radius: 10px;
     font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s;
-    color: #666;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2);
+    color: var(--text-secondary);
 }
 
 .auth-tab-btn:hover {
-    background: #e0e0e0;
+    background: var(--bg-primary);
+    border-color: var(--accent-purple);
 }
 
 .auth-tab-btn.active {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    background: linear-gradient(135deg, var(--accent-purple) 0%, var(--bg-gradient-end) 100%);
+    color: var(--text-inverted);
+    box-shadow: var(--shadow-md);
+    border-color: var(--accent-purple);
+}
+
+body.dark-mode .auth-tab-btn.active {
+    background: linear-gradient(135deg, var(--accent-purple), #6366f1 100%);
+    color: var(--text-inverted);
+    border-color: var(--accent-purple);
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
 }
 
 .auth-form {
@@ -162,7 +258,77 @@ body {
 
 .btn-logout:hover {
     background: white;
-    color: #667eea;
+    color: var(--accent-purple);
+}
+
+/* ===================================
+   DARK MODE TOGGLE BUTTON
+   =================================== */
+.dark-mode-toggle {
+    background: var(--bg-secondary);
+    border: 2px solid var(--border-color);
+    color: var(--text-primary);
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2);
+    font-size: 1.2rem;
+    box-shadow: var(--shadow-sm);
+    position: relative;
+    overflow: hidden;
+}
+
+.dark-mode-toggle::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, var(--accent-purple), var(--bg-gradient-end));
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.dark-mode-toggle:hover::before {
+    opacity: 0.15;
+}
+
+.dark-mode-toggle:hover {
+    border-color: var(--accent-purple);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.dark-mode-toggle:active {
+    transform: translateY(0) scale(0.95);
+}
+
+.dark-mode-toggle svg {
+    width: 24px;
+    height: 24px;
+    transition: transform 0.3s ease;
+    position: relative;
+    z-index: 1;
+}
+
+body.dark-mode .dark-mode-toggle {
+    background: var(--bg-primary);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+body.dark-mode .dark-mode-toggle:hover {
+    background: var(--bg-card);
+    border-color: var(--accent-purple);
+}
+
+body.dark-mode .dark-mode-toggle::before {
+    background: linear-gradient(135deg, #4c1d95, #8b5cf6);
 }
 
 /* ===================================
@@ -210,26 +376,62 @@ header h1 {
     flex: 1;
     min-width: 120px;
     padding: 15px 20px;
-    background: white;
-    border: none;
+    background: var(--bg-card);
+    border: 2px solid transparent;
     border-radius: 10px;
     font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s;
-    color: #666;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2);
+    color: var(--text-secondary);
+    box-shadow: var(--shadow-sm);
+    position: relative;
+    overflow: hidden;
 }
 
-.tab-btn:hover {
-    background: #f0f0f0;
-    transform: translateY(-2px);
+.tab-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--accent-purple);
+    opacity: 0;
+    transition: opacity 0.2s;
+    border-radius: 10px;
+}
+
+.tab-btn:hover::before {
+    opacity: 0.1;
+}
+
+.tab-btn:active {
+    transform: scale(0.97);
 }
 
 .tab-btn.active {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    background: linear-gradient(135deg, var(--accent-purple) 0%, var(--bg-gradient-end) 100%);
+    color: var(--text-inverted);
+    box-shadow: var(--shadow-md);
+    border-color: var(--accent-purple);
+}
+
+body.dark-mode .tab-btn {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+body.dark-mode .tab-btn:hover {
+    background: var(--bg-primary);
+    border-color: var(--accent-purple);
+}
+
+body.dark-mode .tab-btn.active {
+    background: linear-gradient(135deg, var(--accent-purple) 0%, #6366f1 100%);
+    color: var(--text-inverted);
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
 }
 
 /* ===================================
@@ -261,7 +463,7 @@ header h1 {
    =================================== */
 
 .add-expense-section {
-    background: white;
+    background: var(--bg-card);
     border-radius: 15px;
     padding: 30px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
@@ -269,7 +471,7 @@ header h1 {
 }
 
 .add-expense-section h2 {
-    color: #667eea;
+    color: var(--bg-gradient-start);
     margin-bottom: 20px;
     font-size: 1.5rem;
 }
@@ -285,7 +487,7 @@ header h1 {
 .form-group label {
     display: block;
     margin-bottom: 8px;
-    color: #333;
+    color: var(--text-primary);
     font-weight: 600;
     font-size: 1rem;
 }
@@ -294,16 +496,25 @@ header h1 {
 .form-group select {
     width: 100%;
     padding: 12px;
-    border: 2px solid #e0e0e0;
+    border: 2px solid var(--border-color);
     border-radius: 8px;
     font-size: 1rem;
     transition: border-color 0.3s;
+    background: var(--input-bg);
+    color: var(--text-primary);
 }
 
 .form-group input:focus,
 .form-group select:focus {
     outline: none;
-    border-color: #667eea;
+    border-color: var(--accent-purple);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+body.dark-mode .form-group input:focus,
+body.dark-mode .form-group select:focus {
+    border-color: var(--accent-purple);
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.3);
 }
 
 /* ===================================
@@ -313,68 +524,181 @@ header h1 {
 .btn-primary {
     width: 100%;
     padding: 15px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    background: linear-gradient(135deg, var(--accent-purple) 0%, var(--bg-gradient-end) 100%);
+    color: var(--text-inverted);
     border: none;
     border-radius: 8px;
     font-size: 1.1rem;
     font-weight: 600;
     cursor: pointer;
     transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: var(--shadow-sm);
 }
 
 .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    box-shadow: var(--shadow-md);
 }
 
 .btn-primary:active {
     transform: translateY(0);
 }
 
+body.dark-mode .btn-primary {
+    background: linear-gradient(135deg, var(--accent-purple), #6366f1 100%);
+    box-shadow: 0 0 15px rgba(139, 92, 246, 0.4);
+}
+
 .btn-success {
     padding: 10px 20px;
-    background: #27ae60;
-    color: white;
+    background: var(--accent-green);
+    color: var(--text-inverted);
     border: none;
     border-radius: 8px;
     cursor: pointer;
     font-weight: 600;
-    transition: background 0.3s;
+    transition: all 0.2s;
+    box-shadow: var(--shadow-sm);
 }
 
 .btn-success:hover {
-    background: #229954;
+    background: #059669;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+body.dark-mode .btn-success {
+    background: var(--success-bg);
+    color: var(--success-text);
+    box-shadow: 0 0 0 1px rgba(6, 78, 59, 0.1);
 }
 
 .btn-secondary {
     padding: 10px 20px;
-    background: #95a5a6;
-    color: white;
-    border: none;
+    background: var(--bg-card);
+    color: var(--text-primary);
+    border: 2px solid var(--border-color);
     border-radius: 8px;
     cursor: pointer;
     font-weight: 600;
-    transition: background 0.3s;
+    transition: all 0.2s;
+    box-shadow: var(--shadow-sm);
 }
 
 .btn-secondary:hover {
-    background: #7f8c8d;
+    background: var(--bg-primary);
+    border-color: var(--accent-purple);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+body.dark-mode .btn-secondary {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border-color: var(--border-color);
 }
 
 .btn-danger {
     padding: 10px 20px;
-    background: #e74c3c;
+    background: var(--accent-red);
+    color: var(--text-inverted);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-danger:hover {
+    background: #dc2626;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+body.dark-mode .btn-danger {
+    background: var(--danger-bg);
+    color: var(--danger-text);
+    box-shadow: 0 0 0 1px rgba(248, 113, 113, 0.2);
+}
+
+/* PDF Export Button */
+.btn-pdf {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
     color: white;
     border: none;
     border-radius: 8px;
     cursor: pointer;
     font-weight: 600;
-    transition: background 0.3s;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
 }
 
-.btn-danger:hover {
-    background: #c0392b;
+.btn-pdf svg {
+    flex-shrink: 0;
+}
+
+.btn-pdf:hover {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(239, 68, 68, 0.4);
+}
+
+.btn-pdf:active {
+    transform: translateY(0);
+}
+
+body.dark-mode .btn-pdf {
+    background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+    box-shadow: 0 2px 8px rgba(248, 113, 113, 0.3);
+}
+
+body.dark-mode .btn-pdf:hover {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    box-shadow: 0 4px 16px rgba(239, 68, 68, 0.4);
+}
+
+/* PDF Loading Indicator */
+.pdf-loading {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    backdrop-filter: blur(4px);
+}
+
+.pdf-loading p {
+    color: white;
+    font-size: 1.1rem;
+    margin-top: 20px;
+    font-weight: 500;
+}
+
+.loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #ffffff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 /* ===================================
@@ -412,7 +736,7 @@ header h1 {
    =================================== */
 
 .expenses-list-section {
-    background: white;
+    background: var(--bg-card);
     border-radius: 15px;
     padding: 30px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
@@ -497,7 +821,7 @@ header h1 {
     justify-content: space-between;
     align-items: center;
     padding: 20px;
-    background: #f8f9fa;
+    background: var(--expense-item-bg);
     border-radius: 10px;
     margin-bottom: 15px;
     transition: transform 0.2s, box-shadow 0.2s;
@@ -505,7 +829,13 @@ header h1 {
 
 .expense-item:hover {
     transform: translateX(5px);
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-md);
+    background: var(--expense-item-hover);
+}
+
+body.dark-mode .expense-item:hover {
+    box-shadow: var(--shadow-lg);
+    background: var(--expense-item-hover);
 }
 
 .expense-info {
@@ -515,46 +845,115 @@ header h1 {
 .expense-category {
     font-size: 1.2rem;
     font-weight: 600;
-    color: #333;
+    color: var(--text-primary);
     margin-bottom: 5px;
 }
 
 .expense-description {
-    color: #666;
+    color: var(--text-secondary);
     font-size: 0.95rem;
     margin-bottom: 5px;
 }
 
 .expense-date {
-    color: #999;
+    color: var(--text-secondary);
     font-size: 0.85rem;
 }
 
 .expense-amount {
     font-size: 1.5rem;
     font-weight: bold;
-    color: #764ba2;
+    color: var(--text-primary);
+    background: var(--accent-purple);
+    padding: 8px 16px;
+    border-radius: 8px;
     margin-right: 20px;
+    min-width: 100px;
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+}
+
+body.dark-mode .expense-amount {
+    background: var(--bg-card);
+    color: var(--accent-blue);
+    box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.3);
 }
 
 .delete-btn {
-    background: #e74c3c;
-    color: white;
+    background: var(--accent-red);
+    color: var(--text-inverted);
     border: none;
     padding: 8px 15px;
     border-radius: 6px;
     cursor: pointer;
     font-size: 0.9rem;
-    transition: background 0.3s;
+    transition: all 0.2s;
+    box-shadow: var(--shadow-sm);
 }
 
 .delete-btn:hover {
-    background: #c0392b;
+    background: #dc2626;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+body.dark-mode .delete-btn {
+    background: var(--danger-bg);
+    color: var(--danger-text);
+    box-shadow: 0 0 0 1px rgba(248, 113, 113, 0.2);
+}
+
+/* Edit button styles (icon button) */
+.edit-btn {
+    background: var(--accent-blue);
+    color: var(--text-inverted);
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2);
+    min-width: 38px;
+    box-shadow: var(--shadow-sm);
+}
+
+.edit-btn:hover {
+    background: #2980b9;
+    transform: translateY(-1px) scale(1.05);
+    box-shadow: var(--shadow-md);
+}
+
+.edit-btn svg {
+    pointer-events: none;
+}
+
+body.dark-mode .edit-btn {
+    background: var(--bg-secondary);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+body.dark-mode .edit-btn:hover {
+    background: var(--bg-card);
+    border-color: var(--accent-blue);
+}
+
+.edit-btn svg {
+    pointer-events: none;
+}
+
+/* Action buttons container */
+.expense-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .no-expenses {
     text-align: center;
-    color: #999;
+    color: var(--text-secondary);
     font-size: 1.1rem;
     padding: 40px;
 }
@@ -730,6 +1129,53 @@ header h1 {
     font-size: 1.2rem;
 }
 
+/* Budget status header with delete button */
+.budget-status-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.budget-status-header h3 {
+    margin-bottom: 0;
+}
+
+.btn-delete-budget {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: #fee;
+    color: #dc2626;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-delete-budget:hover {
+    background: #dc2626;
+    color: white;
+    transform: translateY(-1px);
+}
+
+.btn-delete-budget:active {
+    transform: translateY(0);
+}
+
+body.dark-mode .btn-delete-budget {
+    background: rgba(220, 38, 38, 0.15);
+    color: #f87171;
+}
+
+body.dark-mode .btn-delete-budget:hover {
+    background: #dc2626;
+    color: white;
+}
+
 .budget-progress-container {
     background: white;
     border-radius: 8px;
@@ -786,6 +1232,245 @@ header h1 {
 }
 
 /* ===================================
+   বাজেট টাইপ টগল (Budget Type Toggle)
+   =================================== */
+
+.budget-type-toggle {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 25px;
+    background: var(--bg-card, #f8f9fa);
+    padding: 6px;
+    border-radius: 12px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+}
+
+.budget-type-btn {
+    flex: 1;
+    padding: 12px 20px;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    color: var(--text-primary, #333);
+    position: relative;
+}
+
+.budget-type-btn:hover {
+    background: rgba(102, 126, 234, 0.08);
+}
+
+.budget-type-btn.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+body.dark-mode .budget-type-toggle {
+    background: var(--bg-secondary, #1e293b);
+}
+
+body.dark-mode .budget-type-btn:hover {
+    background: rgba(139, 92, 246, 0.15);
+}
+
+body.dark-mode .budget-type-btn.active {
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+}
+
+/* Budget content sections */
+.budget-content {
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+
+.budget-content.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===================================
+   ক্যাটাগরি বাজেট সেকশন (Category Budget)
+   =================================== */
+
+.category-budget-form {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 25px;
+}
+
+.category-budget-form h3 {
+    color: var(--accent-purple, #667eea);
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+}
+
+.category-budget-list {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
+}
+
+.category-budget-list h3 {
+    color: var(--accent-purple, #667eea);
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+}
+
+#categoryBudgetsContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.no-budget-message {
+    text-align: center;
+    color: #999;
+    font-size: 1rem;
+    padding: 30px;
+    font-style: italic;
+}
+
+/* Category Budget Card */
+.category-budget-card {
+    background: white;
+    border-radius: 12px;
+    padding: 18px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    border-left: 4px solid var(--accent-purple, #667eea);
+}
+
+.category-budget-card:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+}
+
+.category-budget-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.category-budget-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text-primary, #333);
+}
+
+.category-budget-month {
+    font-size: 0.85rem;
+    color: #888;
+    font-weight: 500;
+}
+
+.delete-category-budget {
+    background: #fee;
+    color: #dc2626;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 600;
+}
+
+.delete-category-budget:hover {
+    background: #dc2626;
+    color: white;
+}
+
+.category-budget-info {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 12px;
+    font-size: 0.95rem;
+}
+
+.category-budget-info span {
+    color: #666;
+}
+
+.category-budget-info strong {
+    color: var(--accent-purple, #764ba2);
+    font-size: 1.1rem;
+}
+
+.category-progress-bar {
+    width: 100%;
+    height: 24px;
+    background: #e0e0e0;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.category-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #27ae60 0%, #229954 100%);
+    width: 0%;
+    transition: width 0.5s ease, background 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 10px;
+}
+
+.category-progress-fill.warning {
+    background: linear-gradient(90deg, #f39c12 0%, #e67e22 100%);
+}
+
+.category-progress-fill.danger {
+    background: linear-gradient(90deg, #e74c3c 0%, #c0392b 100%);
+}
+
+.category-progress-percent {
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+/* Dark mode for category budget */
+body.dark-mode .category-budget-form,
+body.dark-mode .category-budget-list {
+    background: var(--bg-secondary, #1e293b);
+}
+
+body.dark-mode .category-budget-card {
+    background: var(--bg-card, #1e293b);
+    border-left-color: var(--accent-purple, #8b5cf6);
+}
+
+body.dark-mode .category-budget-title {
+    color: var(--text-primary, #f1f5f9);
+}
+
+body.dark-mode .category-budget-info span {
+    color: #9ca3af;
+}
+
+body.dark-mode .category-budget-info strong {
+    color: var(--accent-purple, #8b5cf6);
+}
+
+/* ===================================
    রেসপন্সিভ ডিজাইন (মোবাইলের জন্য)
    =================================== */
 
@@ -810,7 +1495,14 @@ header h1 {
         margin: 10px 0;
     }
 
-    .delete-btn {
+    .expense-actions {
+        width: 100%;
+        flex-direction: column;
+        gap: 8px;
+        margin-top: 10px;
+    }
+
+    .edit-btn, .delete-btn {
         width: 100%;
     }
 
@@ -890,7 +1582,7 @@ header h1 {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.6);
+    background: var(--modal-overlay);
     backdrop-filter: blur(4px);
     z-index: 10000;
     justify-content: center;
@@ -903,7 +1595,7 @@ header h1 {
 }
 
 .modal-container {
-    background: white;
+    background: var(--bg-card);
     border-radius: 20px;
     padding: 40px 30px;
     max-width: 400px;
@@ -968,7 +1660,7 @@ header h1 {
 .modal-title {
     font-size: 1.8rem;
     font-weight: bold;
-    color: #333;
+    color: var(--text-primary);
     margin-bottom: 10px;
 }
 
@@ -984,9 +1676,52 @@ header h1 {
     color: #e74c3c;
 }
 
+.edit-modal .modal-title {
+    color: #3498db;
+}
+
+.edit-modal .modal-icon.edit svg {
+    stroke: #3498db;
+}
+
+.edit-modal .modal-icon.edit circle {
+    fill: #3498db;
+}
+
+.edit-modal .modal-icon.edit path {
+    fill: #3498db;
+}
+
+.edit-modal .form-group {
+    margin-bottom: 15px;
+}
+
+.edit-modal .form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: #555;
+}
+
+.edit-modal .form-group input,
+.edit-modal .form-group select {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 0.95rem;
+}
+
+.edit-modal .modal-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
 .modal-message {
     font-size: 1.1rem;
-    color: #666;
+    color: var(--text-secondary);
     margin-bottom: 25px;
     line-height: 1.5;
 }
@@ -1052,4 +1787,47 @@ header h1 {
         width: 60px;
         height: 60px;
     }
+}
+
+/* ===================================
+   CUSTOM SCROLLBAR - Dark Mode Friendly
+   =================================== */
+
+/* Webkit browsers (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 5px;
+    border: 2px solid var(--scrollbar-track);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-purple);
+}
+
+/* Firefox */
+* {
+    scrollbar-width: 10px;
+    scrollbar-color: var(--scrollbar-track) var(--scrollbar-thumb);
+}
+
+/* Firefox thumb */
+::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 5px;
+}
+
+/* Firefox track */
+::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+    border-radius: 5px;
 }

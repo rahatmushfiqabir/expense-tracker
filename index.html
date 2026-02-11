@@ -7,6 +7,9 @@
     <link rel="stylesheet" href="style.css">
     <!-- Chart.js লাইব্রেরি - চার্ট দেখানোর জন্য -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <!-- jsPDF লাইব্রেরি - PDF export এর জন্য -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
     <!-- ================================
@@ -117,6 +120,12 @@
                         <p class="subtitle">প্রতিদিনের খরচের হিসাব রাখুন সহজে | রিয়েল-টাইম সিঙ্ক</p>
                     </div>
                     <div class="user-info">
+                        <button id="darkModeToggle" class="dark-mode-toggle" title="ডার্ক মোড / লাইট মোড">
+                            <svg class="theme-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                <path d="M12 1v2m0 4a7 7 0 1 1 0 1 1 1 0 0 7-7m0 4a7 7 0 1 1 0 1 1 1 0 0-7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </button>
                         <span id="userName">ব্যবহারকারী</span>
                         <button id="logoutBtn" class="btn-logout">লগআউট</button>
                     </div>
@@ -236,6 +245,14 @@
                     <div class="list-header">
                         <h2>সব খরচের তালিকা</h2>
                         <div class="header-buttons">
+                            <button id="exportPDF" class="btn-pdf" onclick="exportToPDF()">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                    <polyline points="7 10 12 15 17 10"/>
+                                    <line x1="12" y1="15" x2="12" y2="3"/>
+                                </svg>
+                                PDF ডাউনলোড
+                            </button>
                             <button id="exportCSV" class="btn-success">CSV এক্সপোর্ট</button>
                             <button id="clearAll" class="btn-danger">সব মুছুন</button>
                         </div>
@@ -303,38 +320,106 @@
                 <div class="budget-section">
                     <h2>বাজেট সেট করুন</h2>
 
-                    <!-- বাজেট সেট করার ফর্ম -->
-                    <div class="budget-form">
-                        <div class="form-group">
-                            <label for="budgetMonth">মাস:</label>
-                            <input type="month" id="budgetMonth" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="budgetAmount">বাজেট (টাকা):</label>
-                            <input
-                                type="number"
-                                id="budgetAmount"
-                                placeholder="উদাহরণ: 10000"
-                                min="1"
-                                required
-                            >
-                        </div>
-                        <button id="setBudget" class="btn-primary">বাজেট সেট করুন</button>
+                    <!-- Budget Type Toggle -->
+                    <div class="budget-type-toggle">
+                        <button class="budget-type-btn active" data-type="monthly">
+                            মাসিক বাজেট
+                        </button>
+                        <button class="budget-type-btn" data-type="category">
+                            ক্যাটাগরি বাজেট
+                        </button>
                     </div>
 
-                    <!-- বাজেট স্ট্যাটাস -->
-                    <div class="budget-status">
-                        <h3>বাজেট স্ট্যাটাস</h3>
-                        <div class="budget-progress-container">
-                            <div class="budget-info">
-                                <span>বাজেট: <strong id="budgetTotal">০ টাকা</strong></span>
-                                <span>খরচ: <strong id="budgetSpent">০ টাকা</strong></span>
-                                <span>বাকি: <strong id="budgetRemaining">০ টাকা</strong></span>
+                    <!-- Monthly Budget Section -->
+                    <div id="monthlyBudgetSection" class="budget-content active">
+                        <!-- বাজেট সেট করার ফর্ম -->
+                        <div class="budget-form">
+                            <div class="form-group">
+                                <label for="budgetMonth">মাস:</label>
+                                <input type="month" id="budgetMonth" required>
                             </div>
-                            <div class="progress-bar">
-                                <div id="budgetProgressBar" class="progress-fill"></div>
+                            <div class="form-group">
+                                <label for="budgetAmount">বাজেট (টাকা):</label>
+                                <input
+                                    type="number"
+                                    id="budgetAmount"
+                                    placeholder="উদাহরণ: 10000"
+                                    min="1"
+                                    required
+                                >
                             </div>
-                            <p id="budgetMessage" class="budget-message"></p>
+                            <button id="setBudget" class="btn-primary">বাজেট সেট করুন</button>
+                        </div>
+
+                        <!-- বাজেট স্ট্যাটাস -->
+                        <div class="budget-status">
+                            <div class="budget-status-header">
+                                <h3>বাজেট স্ট্যাটাস</h3>
+                                <button id="deleteMonthlyBudget" class="btn-delete-budget">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="3 6 5 6 21 6"></polyline>
+                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                    </svg>
+                                    বাজেট মুছুন
+                                </button>
+                            </div>
+                            <div class="budget-progress-container">
+                                <div class="budget-info">
+                                    <span>বাজেট: <strong id="budgetTotal">০ টাকা</strong></span>
+                                    <span>খরচ: <strong id="budgetSpent">০ টাকা</strong></span>
+                                    <span>বাকি: <strong id="budgetRemaining">০ টাকা</strong></span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div id="budgetProgressBar" class="progress-fill"></div>
+                                </div>
+                                <p id="budgetMessage" class="budget-message"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Category Budget Section (New) -->
+                    <div id="categoryBudgetSection" class="budget-content">
+                        <!-- Category Budget Form -->
+                        <div class="category-budget-form">
+                            <h3>ক্যাটাগরি বাজেট সেট করুন</h3>
+                            <div class="form-group">
+                                <label for="categorySelect">ক্যাটাগরি:</label>
+                                <select id="categorySelect" required>
+                                    <option value="">নির্বাচন করুন</option>
+                                    <option value="খাবার">খাবার</option>
+                                    <option value="পরিবহন">পরিবহন</option>
+                                    <option value="শপিং">শপিং</option>
+                                    <option value="বিল">বিল</option>
+                                    <option value="চিকিৎসা">চিকিৎসা</option>
+                                    <option value="বিনোদন">বিনোদন</option>
+                                    <option value="অন্যান্য">অন্যান্য</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="categoryBudgetMonth">মাস:</label>
+                                <input type="month" id="categoryBudgetMonth" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="categoryBudgetAmount">বাজেট (টাকা):</label>
+                                <input
+                                    type="number"
+                                    id="categoryBudgetAmount"
+                                    placeholder="উদাহরণ: 5000"
+                                    min="1"
+                                    required
+                                >
+                            </div>
+                            <button id="setCategoryBudget" class="btn-primary">
+                                বাজেট সেট করুন
+                            </button>
+                        </div>
+
+                        <!-- Category Budget Status List -->
+                        <div class="category-budget-list">
+                            <h3>ক্যাটাগরি বাজেট স্ট্যাটাস</h3>
+                            <div id="categoryBudgetsContainer">
+                                <p class="no-budget-message">কোনো ক্যাটাগরি বাজেট সেট করা হয়নি</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -350,7 +435,7 @@
         // Firebase SDK import
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-        import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, query, where, orderBy, onSnapshot, setDoc, getDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, updateDoc, query, where, orderBy, onSnapshot, setDoc, getDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
         // ==========================================
         // FIREBASE CONFIG - config.js থেকে নেবে, না থাকলে default
@@ -386,6 +471,7 @@
             getDocs,
             doc,
             deleteDoc,
+            updateDoc,
             query,
             where,
             orderBy,
@@ -449,6 +535,52 @@
             <h3 class="modal-title" id="errorModalTitle">ত্রুটি!</h3>
             <p class="modal-message" id="errorModalMessage">কিছু ভুল হয়েছে</p>
             <button class="modal-btn btn-primary" onclick="closeModal('errorModal')">ঠিক আছে</button>
+        </div>
+    </div>
+
+    <!-- Edit Expense Modal -->
+    <div id="editModal" class="modal-overlay">
+        <div class="modal-container edit-modal">
+            <div class="modal-icon edit">
+                <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="40" cy="40" r="40" fill="#3498db" opacity="0.1"/>
+                    <circle cx="40" cy="40" r="32" fill="#3498db" opacity="0.2"/>
+                    <path d="M25 55L25 60C25 61.1 25.9 62 27 62L33 62L55 40L48 33L26 55ZM58 37L54 33L47 40L51 44L58 37Z" fill="#3498db"/>
+                </svg>
+            </div>
+            <h3 class="modal-title">খরচ সম্পাদনা করুন</h3>
+            <form id="editExpenseForm">
+                <input type="hidden" id="editExpenseId">
+                <div class="form-group">
+                    <label for="editDate">তারিখ:</label>
+                    <input type="date" id="editDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="editCategory">ক্যাটাগরি:</label>
+                    <select id="editCategory" required>
+                        <option value="">নির্বাচন করুন</option>
+                        <option value="খাবার">খাবার</option>
+                        <option value="পরিবহন">পরিবহন</option>
+                        <option value="শপিং">শপিং</option>
+                        <option value="বিল">বিল</option>
+                        <option value="চিকিৎসা">চিকিৎসা</option>
+                        <option value="বিনোদন">বিনোদন</option>
+                        <option value="অন্যান্য">অন্যান্য</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editAmount">খরচ (টাকা):</label>
+                    <input type="number" id="editAmount" min="1" step="0.01" placeholder="উদাহরণ: 500" required>
+                </div>
+                <div class="form-group">
+                    <label for="editDescription">বিবরণ:</label>
+                    <input type="text" id="editDescription" placeholder="উদাহরণ: বাজার থেকে কেনাকাটা" required>
+                </div>
+                <div class="modal-buttons">
+                    <button type="button" class="modal-btn btn-secondary" onclick="closeModal('editModal')">বাতিল</button>
+                    <button type="submit" class="modal-btn btn-primary">সংরক্ষণ করুন</button>
+                </div>
+            </form>
         </div>
     </div>
 
