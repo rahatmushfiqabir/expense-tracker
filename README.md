@@ -146,6 +146,41 @@ npx serve
 
 Then visit `http://localhost:8000`
 
+### Step 4: Deploy to Production (Optional)
+
+#### Option A: Deploy to Netlify (Recommended)
+
+1. Go to [Netlify](https://netlify.com) and sign up/login
+2. Click "Add new site" → "Import an existing project"
+3. Connect to GitHub and select `expense-tracker` repository
+4. Deploy settings are auto-configured from `netlify.toml`
+5. Click "Deploy site"
+6. Your app will be live at: `https://your-site-name.netlify.app`
+
+**Note:** Netlify deployment is pre-configured with Firebase credentials. No extra setup needed!
+
+#### Option B: Deploy to GitHub Pages
+
+1. Go to your GitHub Repository → Settings → Pages
+2. Under "Build and deployment", select **Source: GitHub Actions**
+3. Go to Settings → Secrets and variables → Actions
+4. Add the following Repository Secrets:
+   - `FIREBASE_API_KEY`: Your Firebase API key
+   - `FIREBASE_AUTH_DOMAIN`: Your Firebase auth domain
+   - `FIREBASE_PROJECT_ID`: Your project ID
+   - `FIREBASE_STORAGE_BUCKET`: Your storage bucket
+   - `FIREBASE_MESSAGING_SENDER_ID`: Your sender ID
+   - `FIREBASE_APP_ID`: Your app ID
+5. Push to `main` branch - auto-deploys via GitHub Actions!
+6. Your app will be live at: `https://your-username.github.io/expense-tracker/`
+
+#### Option C: Deploy to Vercel
+
+1. Import project from GitHub
+2. Framework preset: **Other**
+3. Add environment variables (same as GitHub Pages above)
+4. Deploy!
+
 ### Firestore Security Rules
 
 The project includes `firestore.rules` with secure rules. Deploy them:

@@ -1,0 +1,30 @@
+# Netlify Configuration for Expense Tracker
+
+[build]
+  publish = "."
+
+# Environment Variables (Set these in Netlify Dashboard)
+# Or set them here for Netlify CLI/CI deployments
+[context.production]
+  [context.production.environment]
+    FIREBASE_API_KEY = "AIzaSyCTgHNhBs0QOBDrRV_wrgVhfODps-krR9g"
+    FIREBASE_AUTH_DOMAIN = "expense-tracker-e7b16.firebaseapp.com"
+    FIREBASE_PROJECT_ID = "expense-tracker-e7b16"
+    FIREBASE_STORAGE_BUCKET = "expense-tracker-e7b16.firebasestorage.app"
+    FIREBASE_MESSAGING_SENDER_ID = "972650539076"
+    FIREBASE_APP_ID = "1:972650539076:web:a1b0bf24e1f9969151b411"
+
+# Redirect rules for SPA (Single Page Application)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Headers for security
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"
