@@ -438,18 +438,32 @@
         import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, updateDoc, query, where, orderBy, onSnapshot, setDoc, getDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
         // ==========================================
-        // FIREBASE CONFIG - config.js থেকে নেবে, না থাকলে default
+        // FIREBASE CONFIG - config.js থেকে নেবে
         // ==========================================
-        const firebaseConfig = typeof window.firebaseConfig !== 'undefined'
-            ? window.firebaseConfig
-            : {
-                apiKey: "AIzaSyCTgHNhBs0QOBDrRV_wrgVhfODps-krR9g",
-                authDomain: "expense-tracker-e7b16.firebaseapp.com",
-                projectId: "expense-tracker-e7b16",
-                storageBucket: "expense-tracker-e7b16.firebasestorage.app",
-                messagingSenderId: "972650539076",
-                appId: "1:972650539076:web:a1b0bf24e1f9969151b411"
-              };
+        if (typeof window.firebaseConfig === 'undefined') {
+            document.body.innerHTML = `
+                <div style="display: flex; justify-content: center; align-items: center; height: 100vh; font-family: Arial, sans-serif;">
+                    <div style="text-align: center; max-width: 500px; padding: 30px;">
+                        <h2 style="color: #667eea; margin-bottom: 20px;">Firebase Configuration Missing</h2>
+                        <p style="color: #333; line-height: 1.6;">
+                            অনুগ্রহ করে আপনার Firebase configuration সেটআপ করুন:
+                        </p>
+                        <ol style="text-align: left; color: #555; line-height: 1.8;">
+                            <li><code>config.example.js</code> কপি করে <code>config.js</code> নামে সেভ করুন</li>
+                            <li>Firebase Console থেকে আপনার API keys নিন</li>
+                            <li><code>config.js</code> এ আপনার Firebase credentials পেস্ট করুন</li>
+                            <li>Page refresh করুন</li>
+                        </ol>
+                        <p style="color: #888; font-size: 14px; margin-top: 20px;">
+                            Firebase Console: <a href="https://console.firebase.google.com/" target="_blank" style="color: #667eea;">console.firebase.google.com</a>
+                        </p>
+                    </div>
+                </div>
+            `;
+            throw new Error('Firebase config not found. Please create config.js file.');
+        }
+
+        const firebaseConfig = window.firebaseConfig;
 
         // Firebase initialize করা
         const app = initializeApp(firebaseConfig);

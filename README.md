@@ -8,13 +8,16 @@ A complete real-time expense tracking application with user authentication. Each
 - Email/Password registration
 - Complete login/logout system
 - Separate data for each user
+- Secure session management
 
 ### Expense Management
 - Add expenses easily
 - View all expenses list
-- Delete expenses
+- Edit existing expenses
+- Delete expenses with confirmation
 - Filter by date and category
 - Export data in CSV format
+- Export expense list as PDF
 
 ### Reports & Analytics
 - Monthly report generation
@@ -24,8 +27,17 @@ A complete real-time expense tracking application with user authentication. Each
 
 ### Budget Planning
 - Set monthly budget
-- Track budget vs expenses
+- Category-wise budget allocation
+- Visual progress indicators
 - Smart budget alerts
+- Delete budgets with confirmation
+
+### UI/UX Features
+- Dark mode support
+- Professional modal dialogs
+- Responsive design
+- Bengali language support
+- Smooth animations
 
 ### Real-time Sync
 - Auto sync with Firebase Firestore
@@ -50,69 +62,97 @@ A complete real-time expense tracking application with user authentication. Each
 
 ## Installation
 
-### Method 1: Direct Use (Easiest)
+### Prerequisites
 
-1. Clone the repository:
+- A modern web browser (Chrome, Firefox, Safari, Edge)
+- A local web server (optional, but recommended)
+
+### Step 1: Clone the Repository
+
 ```bash
 git clone https://github.com/rahatmushfiqabir/expense-tracker.git
 cd expense-tracker
 ```
 
-2. Open `index.html` in browser
+### Step 2: Firebase Setup (Required)
 
-### Method 2: Run on Local Server
+1. **Create Firebase Project**
+   - Go to [Firebase Console](https://console.firebase.google.com/)
+   - Click "Add project" or use existing one
 
+2. **Enable Authentication**
+   - Build → Authentication
+   - Get Started → Email/Password
+   - Enable "Email/Password" provider
+
+3. **Enable Firestore Database**
+   - Build → Firestore Database
+   - Create Database
+   - Start in **Test Mode** (we'll update rules later)
+
+4. **Get Firebase Config**
+   - Project Settings (gear icon) → General
+   - Scroll to "Your apps" section
+   - Click "Add app" → Web (</>)
+   - Copy the config values
+
+5. **Create config.js File**
+   ```bash
+   cp config.example.js config.js
+   ```
+
+6. **Edit config.js** with your Firebase credentials:
+   ```javascript
+   window.firebaseConfig = {
+     apiKey: "YOUR_API_KEY_HERE",
+     authDomain: "YOUR_PROJECT.firebaseapp.com",
+     projectId: "YOUR_PROJECT_ID",
+     storageBucket: "YOUR_PROJECT.firebasestorage.app",
+     messagingSenderId: "YOUR_SENDER_ID",
+     appId: "YOUR_APP_ID"
+   };
+   ```
+
+7. **Deploy Firestore Security Rules**
+   - Open `firestore.rules` file from this repo
+   - Copy the content
+   - Go to Firebase Console → Firestore → Rules tab
+   - Paste and click "Publish"
+
+8. **Set API Key Restrictions** (Important!)
+   - Firebase Console → Project Settings → API Keys
+   - Find your "Browser key"
+   - Application restrictions:
+     - ✅ HTTP referrers
+     - Add: `localhost:*`, `127.0.0.1:*`
+   - API restrictions:
+     - ✅ Restrict key
+     - Select: "Identity Toolkit API" and "Cloud Firestore API"
+
+### Step 3: Run the App
+
+**Option A: Using Python**
 ```bash
-# Using Python 3
 python -m http.server 8000
+```
 
-# Or using Node.js
+**Option B: Using Node.js**
+```bash
 npx serve
 ```
 
+**Option C: Direct Browser**
+- Simply open `index.html` in your browser (some features may be limited)
+
 Then visit `http://localhost:8000`
-
-## Setup Configuration
-
-### Firebase Configuration
-
-1. Create a new project at [Firebase Console](https://console.firebase.google.com/)
-2. Enable **Authentication** (Email/Password)
-3. Enable **Firestore Database** (Test Mode)
-4. Add a Web App and copy the config
-5. Update `firebaseConfig` in `index.html`
-
-```javascript
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: " "YOUR_PROJECT_ID",
-  // ...
-};
-```
 
 ### Firestore Security Rules
 
-Add these rules in Firestore Rules tab:
+The project includes `firestore.rules` with secure rules. Deploy them:
 
-```javascript
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-    }
-
-    match /expenses/{expenseId} {
-      allow read, write: if request.auth != null && resource.data.userId == request.auth.uid;
-    }
-
-    match /budgets/{budgetId} {
-      allow read, write: if request.auth != null && resource.data.userId == request.auth.uid;
-    }
-  }
-}
-```
+1. Firebase Console → Firestore Database → Rules tab
+2. Copy content from `firestore.rules` file
+3. Click "Publish"
 
 ## Usage
 
@@ -135,13 +175,13 @@ service cloud.firestore {
 
 ## Upcoming Features
 
-- [ ] Dark Mode support
 - [ ] Multi-currency support
-- [ ] Split expenses
-- [ ] Reminder system
-- [ ] Password reset
-- [ ] PDF report generation
-- [ ] Data backup/restore
+- [ ] Split expenses (shared expenses)
+- [ ] Expense reminder system
+- [ ] Password reset via email
+- [ ] Data export/import (backup/restore)
+- [ ] Expense categories customization
+- [ ] Recurring expenses automation
 
 ## Contributing
 
