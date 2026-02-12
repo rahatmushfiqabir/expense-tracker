@@ -991,6 +991,10 @@ function formatBDCurrency(amount) {
 
 // Firebase error message converter to Bengali
 function getErrorMessage(code) {
+    // Log the actual error code for debugging
+    console.error('🔥 Firebase Error Code:', code);
+    console.error('🔥 Full Error:', code);
+
     const errorMessages = {
         'auth/invalid-email': 'Please enter a valid email address',
         'auth/user-disabled': 'This account has been disabled',
@@ -1000,9 +1004,11 @@ function getErrorMessage(code) {
         'auth/weak-password': 'Password must be at least 6 characters',
         'auth/too-many-requests': 'Too many attempts. Please try again later',
         'auth/network-request-failed': 'Check your internet connection',
-        'auth/invalid-credential': 'Invalid email or password'
+        'auth/invalid-credential': 'Invalid email or password',
+        'auth/invalid-api-key': 'Invalid Firebase API Key',
+        'auth/api-key-not-authorized': 'Firebase API Key not authorized for this domain'
     };
-    return errorMessages[code] || 'Something went wrong. Please try again.';
+    return errorMessages[code] || 'Something went wrong. Please try again. (Error: ' + code + ')';
 }
 
 // ===================================
