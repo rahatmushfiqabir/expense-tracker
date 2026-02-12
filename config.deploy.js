@@ -32,16 +32,27 @@ if (window.firebaseConfig.apiKey === "{{FIREBASE_API_KEY}}") {
     const deployedDomains = [
         'rahatmushfiqabir.github.io',
         'expense-tracker-e7b16.web.app',
+        'fancy-gumption-0b4832.netlify.app',  // Your Netlify site
+        'netlify.app',  // This matches any Netlify domain
         'localhost',
         '127.0.0.1'
     ];
 
     const currentDomain = window.location.hostname;
-    const isDeployed = deployedDomains.some(domain => currentDomain.includes(domain) || currentDomain === domain);
+    console.log('🔍 Current domain:', currentDomain);
+
+    const isDeployed = deployedDomains.some(domain => {
+        const match = currentDomain.includes(domain) || currentDomain === domain;
+        if (match) {
+            console.log('✅ Domain matched:', domain);
+        }
+        return match;
+    });
 
     if (isDeployed) {
         window.firebaseConfig = runtimeConfig;
         console.log('✅ Using deployed Firebase config');
+        console.log('🔑 API Key:', runtimeConfig.apiKey.substring(0, 10) + '...');
     } else {
         console.error('❌ Firebase config not found. Please create config.js');
         throw new Error('Firebase config not found');
