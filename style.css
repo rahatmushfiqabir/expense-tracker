@@ -38,6 +38,32 @@
     --danger-text: #991b1b;
 }
 
+/* ===================================
+   SPACING SYSTEM - 4px Base Scale
+   =================================== */
+:root {
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-8: 32px;
+    --space-10: 40px;
+}
+
+/* ===================================
+   TYPOGRAPHY SCALE - 0.75rem Base
+   =================================== */
+:root {
+    --text-xs: 0.75rem;
+    --text-sm: 0.875rem;
+    --text-base: 1rem;
+    --text-lg: 1.125rem;
+    --text-xl: 1.25rem;
+    --text-2xl: 1.5rem;
+}
+
 body.dark-mode {
     /* Dark Theme Colors - Professional Deep Blue/Purple Theme */
     --bg-gradient-start: #0f172a;
@@ -102,7 +128,7 @@ body {
     background: var(--bg-card);
     border-radius: 20px;
     padding: 40px;
-    box-shadow: var(--shadow-lg));
+    box-shadow: var(--shadow-lg);
     max-width: 500px;
     width: 100%;
     border: 1px solid var(--border-color);
