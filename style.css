@@ -124,6 +124,11 @@ body {
     background-attachment: fixed;
 }
 
+/* Show dark mode toggle in auth section */
+.auth-section .dark-mode-toggle {
+    display: flex !important;
+}
+
 .auth-container {
     background: var(--bg-card);
     border-radius: 20px;
