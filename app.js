@@ -207,6 +207,21 @@ async function handleLogin(e) {
     const password = document.getElementById('loginPassword').value;
     const loginError = document.getElementById('loginError');
 
+    // Check if fields are empty
+    if (!email || email.trim() === '') {
+        loginError.textContent = 'অনুগ্রহ করে ইমেইল ঠিকান্ট ল!';
+        loginError.classList.add('show');
+        setTimeout(() => loginError.classList.remove('show'), 5000);
+        return;
+    }
+
+    if (!password || password.trim() === '') {
+        loginError.textContent = 'পাসওয়ার্ড লিখুন!';
+        loginError.classList.add('show');
+        setTimeout(() => loginError.classList.remove('show'), 5000);
+        return;
+    }
+
     try {
         const { signInWithEmailAndPassword } = window.firebaseFunctions;
         await signInWithEmailAndPassword(window.firebaseAuth, email, password);
@@ -254,6 +269,21 @@ async function handleRegister(e) {
     const confirmPassword = document.getElementById('registerConfirmPassword').value;
     const registerError = document.getElementById('registerError');
     const registerSuccess = document.getElementById('registerSuccess');
+
+    // Check if required fields are empty
+    if (!name || name.trim() === '') {
+        registerError.textContent = 'অনুগ্রহ করে আপনার নাম লিখুন!';
+        registerError.classList.add('show');
+        setTimeout(() => registerError.classList.remove('show'), 5000);
+        return;
+    }
+
+    if (!email || email.trim() === '') {
+        registerError.textContent = 'অনুগ্রহ করে ইমেইল ঠিকাশা লিখুন!';
+        registerError.classList.add('show');
+        setTimeout(() => registerError.classList.remove('show'), 5000);
+        return;
+    }
 
     // Password strength validation
     const passwordValidation = validatePassword(password);
