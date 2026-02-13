@@ -222,33 +222,52 @@ body.dark-mode .auth-tab-btn.active {
 }
 
 .error-message {
-    color: #e74c3c;
-    background: #fadbd8;
-    padding: 10px;
-    border-radius: 8px;
+    color: #ffffff;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    padding: 14px 20px;
+    border-radius: 12px;
     margin-top: 15px;
     text-align: center;
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     display: none;
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.25);
+    font-weight: 500;
+    border-left: 4px solid #b91c1c;
 }
 
 .error-message.show {
     display: block;
+    animation: slideDown 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .success-message {
-    color: #27ae60;
-    background: #d5f4e6;
-    padding: 10px;
-    border-radius: 8px;
+    color: #ffffff;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    padding: 14px 20px;
+    border-radius: 12px;
     margin-top: 15px;
     text-align: center;
-    font-size: 0.9rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.25);
+    border-left: 4px solid #047857;
     display: none;
 }
 
 .success-message.show {
     display: block;
+    animation: slideDown 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .header-content {
