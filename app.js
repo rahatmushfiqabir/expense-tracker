@@ -1587,6 +1587,9 @@ function initDarkMode() {
 function toggleDarkMode() {
     const isDarkMode = document.body.classList.toggle('dark-mode');
 
+    console.log('Dark mode toggled:', isDarkMode);
+    console.log('Body classes:', document.body.classList);
+
     // Save preference to localStorage
     localStorage.setItem('darkMode', isDarkMode);
 
