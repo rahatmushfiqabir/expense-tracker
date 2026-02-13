@@ -155,7 +155,7 @@ body.dark-mode .auth-header h1 {
 }
 
 body.dark-mode .auth-header p {
-    color: var(--text-muted);
+    color: #cbd5e1;
 }
 
 .auth-header p {
@@ -536,6 +536,10 @@ body.dark-mode .tab-btn.active {
     color: var(--text-primary);
     font-weight: 600;
     font-size: 1rem;
+}
+
+body.dark-mode .form-group label {
+    color: #f1f5f9;
 }
 
 .form-group input,
