@@ -572,6 +572,11 @@ body.dark-mode .form-group select::placeholder {
     color: #94a3b8;
 }
 
+/* Specific fix for password placeholder in dark mode */
+body.dark-mode input#registerConfirmPassword::placeholder {
+    color: #f1f5f9 !important;
+}
+
 /* Date input specific styling */
 input[type="date"],
 input[type="month"] {
