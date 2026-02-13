@@ -1587,8 +1587,12 @@ function initDarkMode() {
 function toggleDarkMode() {
     const isDarkMode = document.body.classList.toggle('dark-mode');
 
+    console.log('=== DARK MODE TOGGLE DEBUG ===');
     console.log('Dark mode toggled:', isDarkMode);
     console.log('Body classes:', document.body.classList);
+    console.log('Body className:', document.body.className);
+    console.log('Computed placeholder color:', getComputedStyle(document.getElementById('registerConfirmPassword')).getPropertyValue('color'));
+    console.log('CSS file loaded?');
 
     // Save preference to localStorage
     localStorage.setItem('darkMode', isDarkMode);
