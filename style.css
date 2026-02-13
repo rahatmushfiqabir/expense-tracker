@@ -561,6 +561,17 @@ body.dark-mode .auth-section .form-group label {
     font-family: inherit;
 }
 
+/* Placeholder styling */
+.form-group input::placeholder,
+.form-group select::placeholder {
+    color: var(--text-secondary);
+}
+
+body.dark-mode .form-group input::placeholder,
+body.dark-mode .form-group select::placeholder {
+    color: #94a3b8;
+}
+
 /* Date input specific styling */
 input[type="date"],
 input[type="month"] {
