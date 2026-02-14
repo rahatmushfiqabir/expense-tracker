@@ -187,6 +187,38 @@ function setupAuthTabs() {
     const registerForm = document.getElementById('registerFormElement');
     registerForm.addEventListener('submit', handleRegister);
 
+    // Real-time email validation for registration
+    const registerEmailInput = document.getElementById('registerEmail');
+    const registerErrorDiv = document.getElementById('registerError');
+
+    if (registerEmailInput && registerErrorDiv) {
+        registerEmailInput.addEventListener('blur', function() {
+            const email = this.value.trim();
+            if (email && email !== '') {
+                const emailValidation = validateEmail(email);
+                if (!emailValidation.valid) {
+                    registerErrorDiv.textContent = emailValidation.message;
+                    registerErrorDiv.classList.add('show');
+                    setTimeout(() => registerErrorDiv.classList.remove('show'), 5000);
+                    // Add error styling to input
+                    this.style.borderColor = 'var(--accent-red)';
+                } else {
+                    // Valid email - remove error styling
+                    this.style.borderColor = 'var(--accent-green)';
+                }
+            } else {
+                // Reset to default
+                this.style.borderColor = '';
+            }
+        });
+
+        // Clear validation when user starts typing
+        registerEmailInput.addEventListener('input', function() {
+            this.style.borderColor = '';
+            registerErrorDiv.classList.remove('show');
+        });
+    }
+
     // Logout button handler
     document.getElementById('logoutBtn').addEventListener('click', async () => {
         try {
@@ -231,6 +263,35 @@ async function handleLogin(e) {
         loginError.classList.add('show');
         setTimeout(() => loginError.classList.remove('show'), 5000);
     }
+}
+
+// Email validation function
+function validateEmail(email) {
+    // Basic email format check
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(email)) {
+        return { valid: false, message: 'সঠিক ইমেইল ঠিকানা লিখুন (উদাহরণ: user@example.com)' };
+    }
+
+    // Check for common mistakes
+    if (email.includes('..')) {
+        return { valid: false, message: 'ইমেইল ঠিকানা সঠিক নয়! .. থাকতে পারবে না' };
+    }
+
+    // Check for valid domain extension
+    const domainParts = email.split('@')[1]?.split('.');
+    if (!domainParts || domainParts.length < 2) {
+        return { valid: false, message: 'ইমেইল ঠিকানার ডোমেইন সঠিক নয়' };
+    }
+
+    const extension = domainParts[domainParts.length - 1];
+    if (extension.length < 2) {
+        return { valid: false, message: 'ইমেইল ঠিকানার এক্সটেনশন সঠিক নয়' };
+    }
+
+    // Email is valid
+    return { valid: true };
 }
 
 // Password validation function
@@ -280,6 +341,15 @@ async function handleRegister(e) {
 
     if (!email || email.trim() === '') {
         registerError.textContent = 'অনুগ্রহ করে ইমেইল ঠিকাশা লিখুন!';
+        registerError.classList.add('show');
+        setTimeout(() => registerError.classList.remove('show'), 5000);
+        return;
+    }
+
+    // Email format validation
+    const emailValidation = validateEmail(email);
+    if (!emailValidation.valid) {
+        registerError.textContent = emailValidation.message;
         registerError.classList.add('show');
         setTimeout(() => registerError.classList.remove('show'), 5000);
         return;
@@ -1564,7 +1634,9 @@ function updateBudgetDisplay() {
 
 // Dark mode elements
 const darkModeToggle = document.getElementById('darkModeToggle');
+const darkModeToggleAuth = document.getElementById('darkModeToggleAuth');
 const themeIcon = document.querySelector('.theme-icon');
+const themeIconAuth = darkModeToggleAuth ? darkModeToggleAuth.querySelector('.theme-icon') : null;
 
 /**
  * Initialize dark mode from localStorage
@@ -1605,23 +1677,25 @@ function toggleDarkMode() {
  * Update dark mode toggle icon
  */
 function updateDarkModeIcon(isDarkMode) {
-    if (!themeIcon) return;
+    const iconSVG = isDarkMode
+        ? `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- Moon Icon -->
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+           </svg>`
+        : `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- Sun Icon -->
+                <circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+           </svg>`;
 
-    if (isDarkMode) {
-        // Show moon icon (dark mode is on, click to switch to light)
-        themeIcon.innerHTML = `
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 1-21.21 0 9 9 0 1 1 .21 21.12A9 9 0 0 1 21 12.79z" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-        `;
-    } else {
-        // Show sun icon (light mode is on, click to switch to dark)
-        themeIcon.innerHTML = `
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="2" fill="none"/>
-                <path d="M12 3v1m0 4a7 7 0 1 1 14 0 7 7 0 1 1-14 0" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>
-            </svg>
-        `;
+    // Update app section icon
+    if (themeIcon) {
+        themeIcon.innerHTML = iconSVG;
+    }
+
+    // Update auth section icon
+    if (themeIconAuth) {
+        themeIconAuth.innerHTML = iconSVG;
     }
 }
 
@@ -1629,9 +1703,53 @@ function updateDarkModeIcon(isDarkMode) {
 if (darkModeToggle) {
     darkModeToggle.addEventListener('click', toggleDarkMode);
 }
+if (darkModeToggleAuth) {
+    darkModeToggleAuth.addEventListener('click', toggleDarkMode);
+}
 
 // Initialize dark mode on page load
 initDarkMode();
+
+// ===================================
+// PASSWORD SHOW/HIDE TOGGLE
+// ===================================
+
+/**
+ * Setup password toggle functionality
+ */
+function setupPasswordToggles() {
+    const toggleBtns = document.querySelectorAll('.password-toggle-btn');
+
+    toggleBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const targetId = this.getAttribute('data-target');
+            const passwordInput = document.getElementById(targetId);
+
+            if (passwordInput) {
+                // Toggle password visibility
+                const isPassword = passwordInput.type === 'password';
+                passwordInput.type = isPassword ? 'text' : 'password';
+
+                // Toggle eye icons
+                const eyeOpen = this.querySelector('.eye-open');
+                const eyeClosed = this.querySelector('.eye-closed');
+
+                if (isPassword) {
+                    // Show password - show closed eye icon
+                    if (eyeOpen) eyeOpen.style.display = 'none';
+                    if (eyeClosed) eyeClosed.style.display = 'block';
+                } else {
+                    // Hide password - show open eye icon
+                    if (eyeOpen) eyeOpen.style.display = 'block';
+                    if (eyeClosed) eyeClosed.style.display = 'none';
+                }
+            }
+        });
+    });
+}
+
+// Initialize password toggles on page load
+setupPasswordToggles();
 
 // ===================================
 // CODE EXPLANATION

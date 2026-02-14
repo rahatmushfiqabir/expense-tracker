@@ -140,8 +140,16 @@ body {
 }
 
 .auth-header {
-    text-align: center;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
     margin-bottom: 30px;
+    gap: 15px;
+}
+
+.auth-header-left {
+    text-align: center;
+    flex: 1;
 }
 
 .auth-header h1 {
@@ -582,6 +590,48 @@ body.dark-mode input#registerConfirmPassword::placeholder {
     color: #f1f5f9 !important;
 }
 
+/* Password input wrapper for show/hide button */
+.password-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-input-wrapper input {
+    padding-right: 50px;
+}
+
+.password-toggle-btn {
+    position: absolute;
+    right: 12px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    transition: color 0.2s ease;
+    border-radius: 6px;
+}
+
+.password-toggle-btn:hover {
+    color: var(--accent-purple);
+    background: rgba(102, 126, 234, 0.1);
+}
+
+.password-toggle-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.3);
+}
+
+.password-toggle-btn svg {
+    display: block;
+    width: 20px;
+    height: 20px;
+}
+
 /* Date input specific styling */
 input[type="date"],
 input[type="month"] {
@@ -603,6 +653,26 @@ body.dark-mode .form-group input:focus,
 body.dark-mode .form-group select:focus {
     border-color: var(--accent-purple);
     box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.3);
+}
+
+/* Input validation states */
+.form-group input[style*="border-color: var(--accent-red)"],
+.form-group input[style*="border-color: #ef4444"],
+.form-group input[style*="border-color: red"] {
+    border-color: var(--accent-red) !important;
+    animation: shake 0.3s ease;
+}
+
+.form-group input[style*="border-color: var(--accent-green)"],
+.form-group input[style*="border-color: #10b981"],
+.form-group input[style*="border-color: green"] {
+    border-color: var(--accent-green) !important;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
 }
 
 /* ===================================
